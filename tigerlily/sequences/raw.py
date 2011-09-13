@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
-# raw.py
-# Support for 'raw' (one-line-per-sequence) sequence format.
+# raw.py - Support for 'raw' (one-line-per-sequence) sequence format.
+# Authors:
+#   * Erich Blume <blume.erich@gmail.com>
 #
 # Copyright 2011 Erich Blume <blume.erich@gmail.com>
 #
