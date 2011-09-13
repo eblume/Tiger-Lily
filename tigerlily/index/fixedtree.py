@@ -24,10 +24,27 @@ from .index import GroupIndex
 
 
 class FixedTree(GroupIndex):
-
-    # TODO - document, test cases, then implement
+    """GroupIndex wrapper which implements a Fixed-Width Substring Tree.
     
+    The resulting tree supports alignments of a fixed width only. It supports
+    memory and time efficient lookups including mismatches. It does not support
+    gaps, indels, arbitrary width lookups, etc.
+
+    """
+
     def __init__(self, sequence_group, width):
+        """Creates a FixedTree from the given sequence_group and fixed width.
+
+        sequence_group may be any subclass of
+        tigerlily.sequences.PolymerSequenceGroup, although it will most usually
+        be a MixedSequenceGroup composed of GenomicSequence objects that
+        correspond to reference chromosomes. 
+
+        width is an integer that must be greater than 0, although for reasonable
+        performance it should also be greater than about 20. After this index
+        is created, only reads that are exactly as long as width may be aligned
+
+        """
         pass
 
     def __contains__(self, sequence, **kwargs):

@@ -60,7 +60,7 @@ class GroupIndex(metaclass=abc.ABCMeta):
 
         However some indexes may treat this method differently. If at all
         possible, implementing subclasses should ensure that this method
-        runs at least as fast as alignments(), if not faster.
+        runs at least as fast as the above sample code, if not faster.
         
         Like with __init__, sequence could be any PolymerSequence but will
         probably always be a GenomicSequence. 
