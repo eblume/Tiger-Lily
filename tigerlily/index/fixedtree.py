@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
-# fixedtree.py
-# Implementation of a fixed-width substring tree index for genomic sequences.
+# fixedtree.py - Fixed-width substring tree index for genomic sequences.
+# Authors:
+#   * Erich Blume <blume.erich@gmail.com>
 #
 # Copyright 2011 Erich Blume <blume.erich@gmail.com>
 #
