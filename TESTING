@@ -1,0 +1,34 @@
+Tiger Lily
+Copyright 2011 Erich Blume <blume.erich@gmail.com>
+See COPYING for copyright information
+
+To test Tiger Lily to ensure that the source you have passes all of the unit
+tests (thus helping to ensure correctness and validity), simply run the
+test.sh executable script provided at the root directory along side this file.
+
+Testing Tiger Lily in this manner requires that 'nose' be installed. 'nose' is
+a testing framework for python that can be downloaded from:
+    http://code.google.com/p/python-nose/
+
+Note that 'nose' requires a bit of extra work to install on Python 3 at this
+time: you will also need to install 'Distribute', a package for Python 3 which
+completely replaces setuptools (indeed, it wraps setuptools completely, such
+that it will become your new setuptools-like distribution system). Distribute
+can be downloaded from:
+    http://pypi.python.org/pypi/distribute
+
+Installing Distribute is fairly straightforward, please read the documentation
+available on the above site.
+
+
+
+
+To add new tests, you may either:
+    * Add doctests to the docstrings of functions, classes, and modules you add.
+      (This is the preferred method.)
+    * Create a 'test.py' file inside of the module directory and either create
+      unittest.TestCase objects inside of that, OR simply write functions that
+      take no arguments and return no values with the word 'test' in them.
+
+    See the Nose documentation for more information, noting that the Tiger Lily
+    testing protocol allows for executable files and doctests to be tested.

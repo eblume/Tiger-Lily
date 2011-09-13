@@ -1,0 +1,10 @@
+# Ignore OS X files
+.DS_Store
+
+# Ignore vim/emacs swap files
+*~
+.*.swp
+
+# Ignore python cache stuff
+*.pyc
+*/__pycache__/*

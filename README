@@ -1,1 +1,59 @@
-This is a placeholder.
+Tiger Lily
+Sequencing tools for Python 3
+Copyright 2011 Erich Blume <blume.erich@gmail.com>
+
+Project page: <https://bitbucket.org/eblume/tiger-lily/overview>
+
+
+==LICENSE==
+
+This file is part of Tiger Lily.
+
+Tiger Lily is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Tiger Lily is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tiger Lily, in a file called COPYING.  If not, see
+<http://www.gnu.org/licenses/>.
+
+==INSTALLATION==
+
+See INSTALLATION. This is a standard distutils setup, if you already know the
+procedure.
+
+==USING PYTHON 2.x==
+
+It is entirely possible that Tiger Lily is completely backwards compatible
+with Python 2.x, particularly Python2.7+. This will be unsupported and untested.
+
+==PACKAGE INFORMATION==
+
+Nothing at this time. (Check back later!)
+
+==RELEASE HISTORY==
+
+Wow, you're reading this before any releases have been made. Aren't you special!
+
+==CONTRIBUTION==
+
+To contribute to Tiger Lily, please visit the project's main page at
+<https://bitbucket.org/eblume/tiger-lily/overview>.
+
+There are many ways to contribute. Some of them are:
+* File bug reports in the Issues tab of the project page.
+* Edit the wiki on the project page to update documentation, etc.
+* Submit patches to the project page by adding a file to a new issue
+  with an appropriate title.
+* Or, best of all, clone the project! You can choose to then develop
+  independently or (and I would humbly suggest this is the better option),
+  once the changes are ready, submit a push request to the main project.
+
+As always, you can contact the author at <blume.erich@gmail.com>.
+

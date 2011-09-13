@@ -1,0 +1,25 @@
+Tiger Lily
+Copyright 2011 Erich Blume <blume.erich@gmail.com>
+See COPYING for copyright information
+
+INSTALLATION
+
+Tiger Lily includes a python source file called setup.py at the top level of
+its directory structure, which should be the same folder this README file is
+located in.
+
+To install the packages provided by Tiger Lily, it may be sufficient to type 
+(at a command line):
+
+> python setup.py install
+
+However, depending on your environment, you will likely need to provide a bit
+of guidance to your OS, such as the following command:
+
+> sudo env python3 setup.py install
+
+See <http://docs.python.org/py3k/install/index.html#install-index> for more
+information on installing python packages using distutils.
+
+At this time no additional software or libraries should be required.
+
