@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # genomic.py - Support for genomic (chromosomal DNA) sequences
 # Authors:
 #     * Erich Blume <blume.erich@gmail.com>
