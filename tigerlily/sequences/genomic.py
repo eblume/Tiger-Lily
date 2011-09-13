@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-# genomic.py
-# Support gor genomic (chromosomal DNA) sequences
+# genomic.py - Support for genomic (chromosomal DNA) sequences
+# Authors:
+#     * Erich Blume <blume.erich@gmail.com>
 #
 # Copyright 2011 Erich Blume <blume.erich@gmail.com>
 #
@@ -21,9 +22,13 @@
 #
 
 import re
+import string
 
 from .sequence import PolymerSequence
 from .mixed import MixedSequenceGroup
+
+
+COMPLEMENT_TRANS = str.maketrans('atgcATGC','tacgTACG')
 
 class GenomicSequence(PolymerSequence):
     """Container for Genomic (chromosomal DNA) sequences.
@@ -55,8 +60,8 @@ class GenomicSequence(PolymerSequence):
         ...
     ValueError: Invalid genomic sequence format: LAVVUGHTLK
 
-
     """
+
     
     def __init__(self,sequence,identifier=None):
         if not re.match(r'[atgcATGCN]+',sequence):
@@ -81,6 +86,57 @@ class GenomicSequence(PolymerSequence):
     def write(self,file):
         raise NotImplementedError('Attempt to write a genomic sequence. '
                                   'Try casting to another sequence type first.')
+
+    def reverse(self):
+        """Return a new sequence that is the reverse of this sequence.
+        
+        >>> seq1 = GenomicSequence('AATGCC')
+        >>> rseq1 = seq1.reverse()
+        >>> rseq1.sequence
+        'CCGTAA'
+        >>> seq2 = rseq1.reverse()
+        >>> seq2.sequence == seq1.sequence
+        True
+
+        """
+        return GenomicSequence(self._sequence[::-1],identifier=self._identifier)
+
+    def complement(self):
+        """Return the purine<->pyrimidine complement of the sequence
+        as a new sequence.
+
+        >>> seq1 = GenomicSequence('AATGCC')
+        >>> cseq1 = seq1.complement()
+        >>> cseq1.sequence
+        'TTACGG'
+        >>> seq2 = cseq1.complement()
+        >>> seq2.sequence == seq1.sequence
+        True
+    
+        """
+        return GenomicSequence(self._sequence.translate(COMPLEMENT_TRANS),  
+                               identifier=self._identifier)
+
+    def reverse_complement(self):
+        """Return the reverse complement of the sequence as a new sequence.
+
+        Has the same result as sequence.reverse().complement(), but slightly
+        more efficient.
+
+        >>> seq1 = GenomicSequence('AATGCC')
+        >>> rcseq1 = seq1.reverse_complement()
+        >>> rcseq1.sequence
+        'GGCATT'
+        >>> seq2 = rcseq1.reverse_complement()
+        >>> seq2.sequence == seq1.sequence
+        True
+        >>> rcseq1.sequence == seq1.reverse().complement().sequence
+        True
+        
+        """
+
+        newseq = self.sequence[::-1].translate(COMPLEMENT_TRANS)
+        return GenomicSequence(newseq,identifier=self._identifier)
         
 
 def createGenomicSequenceGroup(sequence_group):
