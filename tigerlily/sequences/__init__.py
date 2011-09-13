@@ -1,5 +1,6 @@
-# __init__.py
-# Package meta file for tigerlily.format
+# __init__.py - Package meta file for tigerlily.format
+# Authors:
+#   * Erich Blume <blume.erich@gmail.com>
 #
 # Copyright 2011 Erich Blume <blume.erich@gmail.com>
 #
