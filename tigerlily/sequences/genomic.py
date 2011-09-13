@@ -23,8 +23,8 @@
 import re
 import string
 
-from .sequence import PolymerSequence
-from .mixed import MixedSequenceGroup
+from tigerlily.sequences.sequence import PolymerSequence
+from tigerlily.sequences.mixed import MixedSequenceGroup
 
 
 COMPLEMENT_TRANS = str.maketrans('atgcATGC','tacgTACG')

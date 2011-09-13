@@ -20,9 +20,15 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .sequence import ( PolymerSequence, PolymerSequenceGroup,
-                        FASTASequence, FASTA,
-                      )
-from .raw import ( RawSequence, Raw )
-from .mixed import ( MixedSequenceGroup)
-from .genomic import ( GenomicSequence, createGenomicSequenceGroup )
+from tigerlily.sequences.sequence import ( PolymerSequence,
+    PolymerSequenceGroup, FASTASequence, FASTA,
+)
+
+from tigerlily.sequences.raw import ( RawSequence, Raw )
+
+from tigerlily.sequences.mixed import ( MixedSequenceGroup)
+
+from tigerlily.sequences.genomic import ( GenomicSequence,
+    createGenomicSequenceGroup 
+)
+

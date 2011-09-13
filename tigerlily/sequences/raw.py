@@ -20,7 +20,7 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from . import sequence
+from tigerlily.sequences import sequence
 
 class RawSequence(sequence.PolymerSequence):
     """Container for a 'raw' sequence.

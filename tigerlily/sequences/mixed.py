@@ -20,7 +20,7 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .sequence import PolymerSequenceGroup
+from tigerlily.sequences.sequence import PolymerSequenceGroup
 
 
 class MixedSequenceGroup(PolymerSequenceGroup):
