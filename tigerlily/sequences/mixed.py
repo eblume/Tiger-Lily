@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
-# mixed.py
-# Support for sequence groups of mixed type.
+# mixed.py - Support for sequence groups of mixed type.
+# Authors:
+#   * Erich Blume <blume.erich@gmail.com>
 #
 # Copyright 2011 Erich Blume <blume.erich@gmail.com>
 #

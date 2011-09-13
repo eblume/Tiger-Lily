@@ -1,6 +1,6 @@
 # genomic.py - Support for genomic (chromosomal DNA) sequences
 # Authors:
-#     * Erich Blume <blume.erich@gmail.com>
+#   * Erich Blume <blume.erich@gmail.com>
 #
 # Copyright 2011 Erich Blume <blume.erich@gmail.com>
 #
