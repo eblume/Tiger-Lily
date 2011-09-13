@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
-# index.py
-# Abstract interface for genomic sequence indexes supporting alignment.
+# index.py - Interface for genomic sequence indexes supporting alignment.
+# Authors:
+#   * Erich Blume <blume.erich@gmail.com>
 #
 # Copyright 2011 Erich Blume <blume.erich@gmail.com>
 #
