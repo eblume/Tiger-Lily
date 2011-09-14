@@ -138,20 +138,14 @@ class GenomicSequence(PolymerSequence):
         return GenomicSequence(newseq,identifier=self._identifier)
         
 
-def createGenomicSequenceGroup(sequence_group):
-    r"""Convert any PolymerSequenceGroup descendent in to a genomic version.
+def createGenomicSequenceGroup(*sequences):
+    r"""Convert any group of sequences in to a genomic MixedSequence group.
 
-    This helper function will take any instance of a descendent of
-    PolymerSequenceGroup and convert it in to an instance of
-    MixedSequenceGroup in which every internal sequence is a GenomicSequence.
-
-    This allows for the creation of a group of GenomicSequence objects.
-
-    >>> from . import raw
-    >>> sequences = raw.Raw(data='AGTACGTATTTCAT\nTTCATACGACTAC\n')
+    >>> from tigerlily.sequences.rar import Raw
+    >>> sequences = Raw(data='AGTACGTATTTCAT\nTTCATACGACTAC\n')
     >>> len(sequences)
     2
-    >>> genomic = createGenomicSequenceGroup(sequences)
+    >>> genomic = createGenomicSequenceGroup([s for s in sequences])
     >>> len(genomic)
     2
     >>> for seq in genomic:
@@ -164,7 +158,7 @@ def createGenomicSequenceGroup(sequence_group):
 
     new_group = MixedSequenceGroup()
     
-    for sequence in sequence_group:
+    for sequence in sequences:
         new_group.add(sequence.convert(GenomicSequence))
 
     return new_group
