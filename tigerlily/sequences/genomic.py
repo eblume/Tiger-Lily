@@ -77,8 +77,24 @@ class GenomicSequence(PolymerSequence):
 
     @property
     def identifier(self):
+        """The identifier for this read.
+
+        If the identifier was unspecified, a placeholder will be used that
+        includes a hash value checksum of the sequence.
+
+        >>> seq = GenomicSequence('GGGACTG')
+        >>> seq.identifier
+        'UnknownSeq_7276410743868358753'
+        >>> seq = GenomicSequence('AGGCTA')
+        >>> seq.identifier
+        'UnknownSeq_-8092672563224726703'
+        >>> seq = GenomicSequence('AGGCTA',identifier='chr1')
+        >>> seq.identifier
+        'chr1'
+        """
+        # TODO - don't use hash(), use something smarter.
         if self._identifier is None:
-            return 'UnknownSeq_{chcksum}'.format(hash(self._sequence))
+            return 'UnknownSeq_{}'.format(hash(self._sequence))
         return self._identifier
 
     def _format(self):
@@ -152,11 +168,11 @@ def rev_comp(sequence):
 def createGenomicSequenceGroup(*sequences):
     r"""Convert any group of sequences in to a genomic MixedSequence group.
 
-    >>> from tigerlily.sequences.rar import Raw
+    >>> from tigerlily.sequences.raw import Raw
     >>> sequences = Raw(data='AGTACGTATTTCAT\nTTCATACGACTAC\n')
     >>> len(sequences)
     2
-    >>> genomic = createGenomicSequenceGroup([s for s in sequences])
+    >>> genomic = createGenomicSequenceGroup(*[s for s in sequences])
     >>> len(genomic)
     2
     >>> for seq in genomic:
