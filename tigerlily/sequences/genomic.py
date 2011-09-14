@@ -77,6 +77,24 @@ class GenomicSequence(PolymerSequence):
 
     @property
     def identifier(self):
+        """The identifier for this read.
+
+        If the identifier was unspecified, a placeholder will be used that
+        includes a hash value checksum of the sequence.
+
+        >>> seq = GenomicSequence('GGGACTG')
+        >>> seq.identifier
+        'UnknownSeq_7276410743868358753'
+        >>> seq = GenomicSequence('AGGCTA')
+        >>> seq.identifier
+        'UnknownSeq_-8092672563224726703'
+        >>> seq = GenomicSequence('AGGCTA',identifier='chr1')
+        >>> seq.identifier
+        'chr1'
+        """
+        # TODO - don't use hash(), use something smarter.
+        if self._identifier is None:
+            return 'UnknownSeq_{}'.format(hash(self._sequence))
         return self._identifier
 
     def _format(self):
@@ -111,7 +129,6 @@ class GenomicSequence(PolymerSequence):
         >>> seq2 = cseq1.complement()
         >>> seq2.sequence == seq1.sequence
         True
-    
         """
         return GenomicSequence(self._sequence.translate(COMPLEMENT_TRANS),  
                                identifier=self._identifier)
@@ -131,12 +148,22 @@ class GenomicSequence(PolymerSequence):
         True
         >>> rcseq1.sequence == seq1.reverse().complement().sequence
         True
-        
         """
-
-        newseq = self.sequence[::-1].translate(COMPLEMENT_TRANS)
-        return GenomicSequence(newseq,identifier=self._identifier)
+        return GenomicSequence(rev_comp(self.sequence),
+                               identifier=self._identifier)
         
+def rev_comp(sequence):
+    """Compute the reverse complement of the input string.
+
+    Input is assumed to be a string that could be the sequence of a
+    GenomicSequence. 
+
+    >>> rev_comp('ACGGTC')
+    'GACCGT'
+    >>> rev_comp('GACCGT')
+    'ACGGTC'
+    """
+    return sequence[::-1].translate(COMPLEMENT_TRANS)
 
 def createGenomicSequenceGroup(*sequences):
     r"""Convert any group of sequences in to a genomic MixedSequence group.
