@@ -141,11 +141,11 @@ class GenomicSequence(PolymerSequence):
 def createGenomicSequenceGroup(*sequences):
     r"""Convert any group of sequences in to a genomic MixedSequence group.
 
-    >>> from tigerlily.sequences.rar import Raw
+    >>> from tigerlily.sequences.raw import Raw
     >>> sequences = Raw(data='AGTACGTATTTCAT\nTTCATACGACTAC\n')
     >>> len(sequences)
     2
-    >>> genomic = createGenomicSequenceGroup([s for s in sequences])
+    >>> genomic = createGenomicSequenceGroup(*[s for s in sequences])
     >>> len(genomic)
     2
     >>> for seq in genomic:
