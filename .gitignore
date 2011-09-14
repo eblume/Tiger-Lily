@@ -8,3 +8,7 @@
 # Ignore python cache stuff
 *.pyc
 */__pycache__/*
+
+
+# Ignore the setuptools build directory
+/build
