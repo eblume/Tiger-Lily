@@ -77,6 +77,8 @@ class GenomicSequence(PolymerSequence):
 
     @property
     def identifier(self):
+        if self._identifier is None:
+            return 'UnknownSeq_{chcksum}'.format(hash(self._sequence))
         return self._identifier
 
     def _format(self):
