@@ -97,13 +97,6 @@ class GenomicSequence(PolymerSequence):
             return 'UnknownSeq_{}'.format(hash(self._sequence))
         return self._identifier
 
-    def _format(self):
-        raise NotImplementedError('Attempt to format a genomic sequence. '
-                                  'Try casting to another sequence type first.')
-    def write(self,file):
-        raise NotImplementedError('Attempt to write a genomic sequence. '
-                                  'Try casting to another sequence type first.')
-
     def reverse(self):
         """Return a new sequence that is the reverse of this sequence.
         

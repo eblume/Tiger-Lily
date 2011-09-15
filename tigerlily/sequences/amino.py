@@ -31,6 +31,18 @@ class AminoSequence(PolymerSequence):
     """
     
     def __init__(self,sequence,identifier=None):
+        """Create a new AminoSequence, and validates the sequence.
+
+        If the sequence is not composed of characters that are in
+        ABCDEFGHIKLMNOPQRSTUVWYZX*- then ValueError will be raised.
+        
+        >>> seq = AminoSequence('ADKKYMZZB*EE')
+        >>> seq2 = AminoSequence('ADKKYMZZB*EE',identifier='seq2')
+        >>> seq3 = AminoSequence('ADKKYMZZB*EEJ')
+        Traceback (most recent call last):
+            ...
+        ValueError: invalid character in AminoSequence
+        """
         pass
 
     @property
@@ -39,12 +51,17 @@ class AminoSequence(PolymerSequence):
 
     @property
     def identifier(self):
+        """Returns the identifier, if any.
+
+        If the identifier has not been explicitly set, the default identifier
+        will be used instead.
+        """
         pass
 
     def _format(self):
-        raise NotImplementedError('Attempt to format a genomic sequence. '
+        raise NotImplementedError('Attempt to format an amino sequence. '
                                   'Try casting to another sequence type first.')
     def write(self,file):
-        raise NotImplementedError('Attempt to write a genomic sequence. '
+        raise NotImplementedError('Attempt to write an amino sequence. '
                                   'Try casting to another sequence type first.')
 

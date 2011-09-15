@@ -20,9 +20,11 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from tigerlily.sequences.sequence import ( PolymerSequence,
-    PolymerSequenceGroup, FASTASequence, FASTA,
+from tigerlily.sequences.sequence import ( PolymerSequence, FormattedSequence,
+    PolymerSequenceGroup, 
 )
+
+from tigerlily.sequences.fasta import ( FASTA, FASTASequence)
 
 from tigerlily.sequences.raw import ( RawSequence, Raw )
 
@@ -31,4 +33,6 @@ from tigerlily.sequences.mixed import ( MixedSequenceGroup)
 from tigerlily.sequences.genomic import ( GenomicSequence,
     createGenomicSequenceGroup 
 )
+
+from tigerlily.sequences.amino import ( AminoSequence )
 

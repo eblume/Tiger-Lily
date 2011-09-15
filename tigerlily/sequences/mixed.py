@@ -34,19 +34,18 @@ class MixedSequenceGroup(PolymerSequenceGroup):
     added to the sequence group after initialization - perhaps the key
     benefit of a MixedSequenceGroup.
 
-    >>> from .sequence import FASTASequence
-    >>> from .raw import RawSequence, Raw
-    >>> seq1 = FASTASequence(sequence='aCGTAtagcATCA',identifier='seq1')
-    >>> seq2 = RawSequence(sequence='GGCATACGGCAatacgaCATN')
-    >>> sequences = Raw(data='GGCATACT\nGAGcgaACT\n')
-    >>> genomic = MixedSequenceGroup(sequences)
+    >>> import tigerlily.sequences as tigseq
+    >>> seq1 = tigseq.FASTASequence(sequence='aCGTAtagcATCA',identifier='seq1')
+    >>> seq2 = tigseq.RawSequence(sequence='GGCATACGGCAatacgaCATN')
+    >>> sequences = tigseq.Raw(data='GGCATACT\nGAGcgaACT\n')
+    >>> genomic = tigseq.MixedSequenceGroup(sequences)
     >>> len(genomic)
     2
     >>> genomic.add(seq1)
     >>> genomic.add(seq2)
     >>> len(genomic)
     4
-    >>> genomic = MixedSequenceGroup()
+    >>> genomic = tigseq.MixedSequenceGroup()
     >>> len(genomic)
     0
     >>> genomic.add(seq1)

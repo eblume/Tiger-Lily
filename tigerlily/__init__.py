@@ -20,6 +20,3 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from . import align
-from . import sequences
-from . import index

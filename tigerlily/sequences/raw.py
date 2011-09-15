@@ -22,7 +22,7 @@
 
 from tigerlily.sequences import sequence
 
-class RawSequence(sequence.PolymerSequence):
+class RawSequence(sequence.FormattedSequence):
     """Container for a 'raw' sequence.
 
     Since raw reads are essentially just a sequence, this is a fairly useless
@@ -39,7 +39,7 @@ class RawSequence(sequence.PolymerSequence):
     
     An example converting from Raw to FASTA and back, to prove it works:
 
-    >>> from . import sequence
+    >>> import tigerlily.sequences as sequence
     >>> fasta = seq.convert(sequence.FASTASequence)
     >>> seq2 = fasta.convert(RawSequence)
     >>> seq.sequence == fasta.sequence == seq2.sequence == 'LALL'
