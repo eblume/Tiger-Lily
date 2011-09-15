@@ -36,10 +36,10 @@ class NucleicSequence(PolymerSequence):
     internal format that constrains the sequence to a certain set of
     allowed characters in the sequence.
 
-    Those characters are captured by the regular expression
-        [atgcATGCN]+
+    The set of characters allowed is the following:
+        ATGC
     If a sequence is converted to a NucleicSequence and doesn't fit that
-    regular expression, ValueError will be raised.
+    set, ValueError will be raised.
 
     NucleicSequence objects do not have a valid write() method, nor do
     they have a valid format() method. (Instead they will raise
@@ -70,7 +70,7 @@ class NucleicSequence(PolymerSequence):
 
     
     def __init__(self,sequence,identifier=None):
-        if not re.match(r'[atgcATGCN]+$',sequence):
+        if not re.match(r'[ATGC]+$',sequence):
             raise ValueError('Invalid nucleic sequence format')
 
         self._sequence = sequence
@@ -154,14 +154,18 @@ class NucleicSequence(PolymerSequence):
 class AminoSequence(PolymerSequence):
     """PolymerSequence for aminoacid sequences (e.g. protein sequences).
 
-    Each member of the sequence must be one of ABCDEFGHIKLMNOPQRSTUVWYZX*-
+    Each member of the sequence must be one of ABCDEFGHIKLMNOPQRSTUVWYZX*
     """
     
     def __init__(self,sequence,identifier=None):
         """Create a new AminoSequence, and validates the sequence.
 
         If the sequence is not composed of characters that are in
-        ABCDEFGHIKLMNOPQRSTUVWYZX*- then ValueError will be raised.
+        ABCDEFGHIKLMNOPQRSTUVWYZX* then ValueError will be raised.
+
+        This notation is similar to the NCBI amino acid query sequence
+        format, but does not allow for the gap indicator (-) nor masked
+        acids (lowercase variant).
         
         >>> seq = AminoSequence('ADKKYMZZB*EE')
         >>> seq2 = AminoSequence('ADKKYMZZB*EE',identifier='seq2')
@@ -170,7 +174,7 @@ class AminoSequence(PolymerSequence):
             ...
         ValueError: invalid character in AminoSequence
         """
-        if not re.match(r'[ABCDEFGHIKLMNOPQRSTUVWYZX*\-]+$',sequence):
+        if not re.match(r'[ABCDEFGHIKLMNOPQRSTUVWYZX*]+$',sequence):
             raise ValueError('invalid character in AminoSequence')
 
         self._sequence = sequence
@@ -228,4 +232,66 @@ def createNucleicSequenceGroup(*sequences):
         new_group.add(sequence.convert(NucleicSequence))
 
     return new_group
+
+
+#### Genetic Code matrix   ####
+
+# GENETIC_CODE_AMINO - the genetic code, going from amino acid to codon
+GENETIC_CODE_AMINO = {
+    'A': {'GCU','GCC','GCA','GCG'},
+    'R': {'CGU','CGC','CGA','CGG','AGA','AGG'},
+    'N': {'AAU','AAC'},
+    'D': {'GAU','GAC'},
+    'C': {'UGU','UGC'},
+    'Q': {'CAA','CAG'},
+    'E': {'GAA','GAG'},
+    'G': {'GGU','GGC','GGA','GGG'},
+    'H': {'CAU','CAC'},
+    'I': {'AUU','AUC','AUA'},
+    'M': {'AUG'},
+    'L': {'UUA','UUG','CUU','CUC','CUA','CUG'},
+    'K': {'AAA','AAG'},
+    'F': {'UUU','UUC'},
+    'P': {'CCU','CCC','CCA','CCG'},
+    'S': {'UCU','UCC','UCA','UCG','AGU','AGC'},
+    'T': {'ACU','ACC','ACA','ACG'},
+    'W': {'UGG'},
+    'Y': {'UAU','UAC'},
+    'V': {'GUU','GUC','GUA','GUG'},
+    '*': {'UAA','UGA','UAG'}
+}
+
+def _generate_inverse_gc_matrix(matrix):
+    """Private initializer to create the inverse of the genetic code matrix.
+
+    Importantly, this initializer will also detect inconsitancies in the above
+    matrix and raise ValueError if either of the following two occur:
+        1. A given codon is listed twice in any two amino acids' groups.
+        2. Some possible codon is not listed in the above matrix.
+
+    In general, please do not call this function yourself. It will be called
+    once when the module is imported.
+    """
+    inv_matrix = {}
+
+    for amino in GENETIC_CODE_AMINO:
+        for codon in GENETIC_CODE_AMINO[amino]:
+            if codon in inv_matrix:
+                raise ValueError('Codon {} is listed at least twice in '
+                                 'GENETIC_CODE_AMINO'.format(codon))
+            inv_matrix[codon] = amino
+
+    from itertools import combinations_with_replacement as cPr
+
+    for codon in cPr('AUGC',3):
+        codon = ''.join(codon)
+        if not codon in inv_matrix:
+            raise ValueError('Codon {} is not listed in '
+                             'GENETIC_CODE_ADMINO'.format(codon))
+
+    return inv_matrix
+
+
+# GENETIC_CODE_CODON - the genetic code, going from codon to amino acid
+GENETIC_CODE_CODON = _generate_inverse_gc_matrix(GENETIC_CODE_AMINO)
 
