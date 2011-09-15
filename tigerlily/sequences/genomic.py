@@ -150,6 +150,64 @@ class NucleicSequence(PolymerSequence):
         return NucleicSequence(reverse_complement(self.sequence),
                                identifier=self._identifier)
 
+    def translate(self,reading_frame=1,use_control_codes=False):
+        """Convert this NucleicSequence to a corresponding AminoSequence.
+
+        Conversion is performed by taking each codon and replacing it with
+        the corresponding amino acid. In the nucleic sequence, thymine (T)
+        is automatically converted to uracil (U). In biological terms,
+        translate() assumes that the NucleicSequence object's sequence is
+        the coding sequence (and not the template). Incidentally, to get
+        the coding sequence of a template, just call
+        template.reverse_complement().
+
+        reading_frame is either 1, 2, or 3, and corresponds to the 1-based
+        offset into the sequence from which to begin collecting codons. In
+        other words, reading_frame=1 (the default) will start from the first
+        base in the sequence, and reading_frame=2 from the 2nd, and so on.
+        Higher values are allowed and will start further in to the sequence by
+        skipping codons that would otherwise have been in the reading frame.
+
+        use_control_codes is a flag which, when True, enables an alternative
+        processing algorithm. The new algorithm is like the first one (including
+        the reading_frame), but after processing has finished the following
+        constraint is placed upon the strand: all amino acids prior to and
+        including the first Methionine (M/AUG) will be removed, and all amino
+        acids after the first STOP codon (*/UAA,UGA,UAG) will be removed. If
+        no Methionine is detected, ValueError will be raised. (It is not
+        necessary for there to be a STOP codon.)
+
+        >>> nucleic = NucleicSequence('CA TGG TAT GTT TTG GGT TTA GAA ACG T')
+        >>> amino = nucleic.translate()
+        >>> amino.sequence
+        'HGMFWV*KR'
+
+        We can also specify a reading_frame even though it will mean that the
+        given input sequence doesn't cleanly subdivide in to codons - this is
+        not an error.
+
+        >>> amino = nucleic.translate(reading_frame=2)
+        >>> amino.sequence
+        'MVCFGFRN'
+
+        Here is an example using use_control_codes mode.
+
+        >>> amino = nucleic.translate(use_control_codes=True)
+        'FWV'
+        >>> amino = nucleic.translate(use_control_codes=True,reading_frame=2)
+        'VCFGFRN'
+        >>> amino = nucleic.translate(use_control_codes=True,reading_frame=3)
+        Traceback (most recent call last):
+            ...
+        ValueError: No Methionine found in translated nucleic sequence
+    
+        """
+        # TODO - EXTREMELY IMPORTANT - above, I claim that if the user
+        # has a NucleicSequence that is equivalent to the template strand,
+        # then the user can simply call template.reverse_complement() to get
+        # the coding sequence. Is this true, or do you simply call
+        # template.complement()?
+        pass
 
 class AminoSequence(PolymerSequence):
     """PolymerSequence for aminoacid sequences (e.g. protein sequences).
@@ -290,7 +348,6 @@ def _generate_inverse_gc_matrix(matrix):
                              'GENETIC_CODE_ADMINO'.format(codon))
 
     return inv_matrix
-
 
 # GENETIC_CODE_CODON - the genetic code, going from codon to amino acid
 GENETIC_CODE_CODON = _generate_inverse_gc_matrix(GENETIC_CODE_AMINO)
