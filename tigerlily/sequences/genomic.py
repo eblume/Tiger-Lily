@@ -29,8 +29,8 @@ from tigerlily.sequences.mixed import MixedSequenceGroup
 
 COMPLEMENT_TRANS = str.maketrans('atgcATGC','tacgTACG')
 
-class GenomicSequence(PolymerSequence):
-    """Container for Genomic (chromosomal DNA) sequences.
+class NucleicSequence(PolymerSequence):
+    """Container for nucleic (chromosomal DNA) sequences.
     
     In general this is not an 'input' or 'output' format, but rather an
     internal format that constrains the sequence to a certain set of
@@ -38,33 +38,40 @@ class GenomicSequence(PolymerSequence):
 
     Those characters are captured by the regular expression
         [atgcATGCN]+
-    If a sequence is converted to a GenomicSequence and doesn't fit that
+    If a sequence is converted to a NucleicSequence and doesn't fit that
     regular expression, ValueError will be raised.
 
-    GenomicSequence objects do not have a valid write() method, nor do
+    NucleicSequence objects do not have a valid write() method, nor do
     they have a valid format() method. (Instead they will raise
     NotImplementedError.)
 
     >>> from . import raw
-    >>> seq = raw.RawSequence('CTAGCATACTCACAGT')
-    >>> genomic = seq.convert(GenomicSequence)
-    >>> genomic.sequence
+    >>> seqdata = 'CTAGCATACTCACAGT'
+    >>> seq = raw.RawSequence(seqdata)
+    >>> nucleic = seq.convert(NucleicSequence)
+    >>> nucleic.sequence
     'CTAGCATACTCACAGT'
+
+    An example showing that NucleicSequence objects can be instantiated
+    directly.
+
+    >>> seq2 = NucleicSequence(seqdata)
+    >>> seq2.sequence == nucleic.sequence
+    True
     
     An example where the constraint fails:
     
     >>> seq = raw.RawSequence('CAGTTACTm')
-    >>> genomic = seq.convert(GenomicSequence)
+    >>> nucleic = seq.convert(NucleicSequence)
     Traceback (most recent call last):
         ...
-    ValueError: Invalid genomic sequence format
-
+    ValueError: Invalid nucleic sequence format
     """
 
     
     def __init__(self,sequence,identifier=None):
         if not re.match(r'[atgcATGCN]+$',sequence):
-            raise ValueError('Invalid genomic sequence format')
+            raise ValueError('Invalid nucleic sequence format')
 
         self._sequence = sequence
         self._identifier = identifier
@@ -80,13 +87,13 @@ class GenomicSequence(PolymerSequence):
         If the identifier was unspecified, a placeholder will be used that
         includes a hash value checksum of the sequence.
 
-        >>> seq = GenomicSequence('GGGACTG')
+        >>> seq = NucleicSequence('GGGACTG')
         >>> seq.identifier
         'UnknownSeq_7276410743868358753'
-        >>> seq = GenomicSequence('AGGCTA')
+        >>> seq = NucleicSequence('AGGCTA')
         >>> seq.identifier
         'UnknownSeq_-8092672563224726703'
-        >>> seq = GenomicSequence('AGGCTA',identifier='chr1')
+        >>> seq = NucleicSequence('AGGCTA',identifier='chr1')
         >>> seq.identifier
         'chr1'
         """
@@ -98,7 +105,7 @@ class GenomicSequence(PolymerSequence):
     def reverse(self):
         """Return a new sequence that is the reverse of this sequence.
         
-        >>> seq1 = GenomicSequence('AATGCC')
+        >>> seq1 = NucleicSequence('AATGCC')
         >>> rseq1 = seq1.reverse()
         >>> rseq1.sequence
         'CCGTAA'
@@ -107,13 +114,13 @@ class GenomicSequence(PolymerSequence):
         True
 
         """
-        return GenomicSequence(self._sequence[::-1],identifier=self._identifier)
+        return NucleicSequence(self._sequence[::-1],identifier=self._identifier)
 
     def complement(self):
         """Return the purine<->pyrimidine complement of the sequence
         as a new sequence.
 
-        >>> seq1 = GenomicSequence('AATGCC')
+        >>> seq1 = NucleicSequence('AATGCC')
         >>> cseq1 = seq1.complement()
         >>> cseq1.sequence
         'TTACGG'
@@ -121,7 +128,7 @@ class GenomicSequence(PolymerSequence):
         >>> seq2.sequence == seq1.sequence
         True
         """
-        return GenomicSequence(self._sequence.translate(COMPLEMENT_TRANS),  
+        return NucleicSequence(self._sequence.translate(COMPLEMENT_TRANS),  
                                identifier=self._identifier)
 
     def reverse_complement(self):
@@ -130,7 +137,7 @@ class GenomicSequence(PolymerSequence):
         Has the same result as sequence.reverse().complement(), but slightly
         more efficient.
 
-        >>> seq1 = GenomicSequence('AATGCC')
+        >>> seq1 = NucleicSequence('AATGCC')
         >>> rcseq1 = seq1.reverse_complement()
         >>> rcseq1.sequence
         'GGCATT'
@@ -140,34 +147,75 @@ class GenomicSequence(PolymerSequence):
         >>> rcseq1.sequence == seq1.reverse().complement().sequence
         True
         """
-        return GenomicSequence(rev_comp(self.sequence),
+        return NucleicSequence(reverse_complement(self.sequence),
                                identifier=self._identifier)
+
+
+class AminoSequence(PolymerSequence):
+    """PolymerSequence for aminoacid sequences (e.g. protein sequences).
+
+    Each member of the sequence must be one of ABCDEFGHIKLMNOPQRSTUVWYZX*-
+    """
+    
+    def __init__(self,sequence,identifier=None):
+        """Create a new AminoSequence, and validates the sequence.
+
+        If the sequence is not composed of characters that are in
+        ABCDEFGHIKLMNOPQRSTUVWYZX*- then ValueError will be raised.
         
-def rev_comp(sequence):
+        >>> seq = AminoSequence('ADKKYMZZB*EE')
+        >>> seq2 = AminoSequence('ADKKYMZZB*EE',identifier='seq2')
+        >>> seq3 = AminoSequence('ADKKYMZZB*EEJ')
+        Traceback (most recent call last):
+            ...
+        ValueError: invalid character in AminoSequence
+        """
+        if not re.match(r'[ABCDEFGHIKLMNOPQRSTUVWYZX*\-]+$',sequence):
+            raise ValueError('invalid character in AminoSequence')
+
+        self._sequence = sequence
+        self._identifier = identifier
+
+    @property
+    def sequence(self):
+        return self._sequence
+
+    @property
+    def identifier(self):
+        """Returns the identifier, if any.
+
+        If the identifier has not been explicitly set, the default identifier
+        will be used instead.
+        """
+        if self._identifier is None:
+            return super().identifier
+        return self._identifier
+        
+def reverse_complement(sequence):
     """Compute the reverse complement of the input string.
 
     Input is assumed to be a string that could be the sequence of a
-    GenomicSequence. 
+    NucleicSequence. 
 
-    >>> rev_comp('ACGGTC')
+    >>> reverse_complement('ACGGTC')
     'GACCGT'
-    >>> rev_comp('GACCGT')
+    >>> reverse_complement('GACCGT')
     'ACGGTC'
     """
     return sequence[::-1].translate(COMPLEMENT_TRANS)
 
-def createGenomicSequenceGroup(*sequences):
-    r"""Convert any group of sequences in to a genomic MixedSequence group.
+def createNucleicSequenceGroup(*sequences):
+    r"""Convert any group of sequences in to a nucleic MixedSequence group.
 
     >>> from tigerlily.sequences.raw import Raw
     >>> sequences = Raw(data='AGTACGTATTTCAT\nTTCATACGACTAC\n')
     >>> len(sequences)
     2
-    >>> genomic = createGenomicSequenceGroup(*[s for s in sequences])
-    >>> len(genomic)
+    >>> nucleic = createNucleicSequenceGroup(*[s for s in sequences])
+    >>> len(nucleic)
     2
-    >>> for seq in genomic:
-    ...     isinstance(seq,GenomicSequence)
+    >>> for seq in nucleic:
+    ...     isinstance(seq,NucleicSequence)
     ...
     True
     True
@@ -177,8 +225,7 @@ def createGenomicSequenceGroup(*sequences):
     new_group = MixedSequenceGroup()
     
     for sequence in sequences:
-        new_group.add(sequence.convert(GenomicSequence))
+        new_group.add(sequence.convert(NucleicSequence))
 
     return new_group
-    
 

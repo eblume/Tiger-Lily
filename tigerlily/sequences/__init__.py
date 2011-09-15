@@ -30,9 +30,7 @@ from tigerlily.sequences.raw import ( RawSequence, Raw )
 
 from tigerlily.sequences.mixed import ( MixedSequenceGroup)
 
-from tigerlily.sequences.genomic import ( GenomicSequence,
-    createGenomicSequenceGroup 
+from tigerlily.sequences.genomic import ( NucleicSequence, AminoSequence,
+    createNucleicSequenceGroup, reverse_complement,
 )
-
-from tigerlily.sequences.amino import ( AminoSequence )
 

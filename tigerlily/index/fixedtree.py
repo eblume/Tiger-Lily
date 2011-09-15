@@ -1,4 +1,4 @@
-# fixedtree.py - Fixed-width substring tree index for genomic sequences.
+# fixedtree.py - Fixed-width substring tree index for nucleic sequences.
 # Authors:
 #   * Erich Blume <blume.erich@gmail.com>
 #
@@ -21,7 +21,7 @@
 #
 
 from tigerlily.index.index import GroupIndex
-from tigerlily.sequences.genomic import rev_comp
+from tigerlily.sequences import reverse_complement
 
 class FixedTree(GroupIndex):
     """GroupIndex wrapper which implements a Fixed-Width Substring Tree.
@@ -33,11 +33,11 @@ class FixedTree(GroupIndex):
     As an example, the following block of code will create a MixedSequenceGroup
     that we can index.
 
-    >>> from tigerlily.sequences import GenomicSequence
-    >>> from tigerlily.sequences import createGenomicSequenceGroup
-    >>> s1 = GenomicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
-    >>> s2 = GenomicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
-    >>> group = createGenomicSequenceGroup(s1,s2)
+    >>> from tigerlily.sequences import NucleicSequence
+    >>> from tigerlily.sequences import createNucleicSequenceGroup
+    >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
+    >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
+    >>> group = createNucleicSequenceGroup(s1,s2)
     >>> index = FixedTree(group,5)
 
     """
@@ -46,7 +46,7 @@ class FixedTree(GroupIndex):
         """Creates a FixedTree from the given sequence_group and fixed width.
 
         sequence_group may be any subclass of
-        tigerlily.sequences.PolymerSequenceGroup, although it will most usually         be a MixedSequenceGroup composed of GenomicSequence objects that
+        tigerlily.sequences.PolymerSequenceGroup, although it will most usually         be a MixedSequenceGroup composed of NucleicSequence objects that
         correspond to reference chromosomes. 
 
         width is an integer that must be greater than 0, although for reasonable
@@ -71,18 +71,18 @@ class FixedTree(GroupIndex):
     def add_sequence(self, sequence,reverse):
         """Add the given sequence to this index. 
 
-        The sequence must be a GenomicRead, and it will be split in to
+        The sequence must be a NucleicSequence, and it will be split in to
         subsequences of the length specified by this index.
 
         If reverse is True, each individual subsequence will also be reversed.
 
-        >>> from tigerlily.sequences import GenomicSequence
-        >>> from tigerlily.sequences import createGenomicSequenceGroup
-        >>> s1 = GenomicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
-        >>> s2 = GenomicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
-        >>> group = createGenomicSequenceGroup(s1,s2)
+        >>> from tigerlily.sequences import NucleicSequence
+        >>> from tigerlily.sequences import createNucleicSequenceGroup
+        >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
+        >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
+        >>> group = createNucleicSequenceGroup(s1,s2)
         >>> index = FixedTree(group,5)
-        >>> seq = GenomicSequence('CCCCC')
+        >>> seq = NucleicSequence('CCCCC')
         >>> index.add_sequence(seq,False)
         """
         seq = sequence.sequence
@@ -108,11 +108,11 @@ class FixedTree(GroupIndex):
         The alignment is performed as if alignments() was called with all
         optional arguments left at their default.
 
-        >>> from tigerlily.sequences import GenomicSequence
-        >>> from tigerlily.sequences import createGenomicSequenceGroup
-        >>> s1 = GenomicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
-        >>> s2 = GenomicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
-        >>> group = createGenomicSequenceGroup(s1,s2)
+        >>> from tigerlily.sequences import NucleicSequence
+        >>> from tigerlily.sequences import createNucleicSequenceGroup
+        >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
+        >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
+        >>> group = createNucleicSequenceGroup(s1,s2)
         >>> index = FixedTree(group,5)
         >>> 'TACGT' in index
         True
@@ -159,10 +159,10 @@ class FixedTree(GroupIndex):
         This will raise ValueError if the given sequence does not match the
         pre-specified width of the index.
 
-        >>> from tigerlily.sequences import GenomicSequence
-        >>> from tigerlily.sequences import createGenomicSequenceGroup
-        >>> seq = GenomicSequence('GGAATTCC',identifier='foo')
-        >>> seqgroup = createGenomicSequenceGroup(seq)
+        >>> from tigerlily.sequences import NucleicSequence
+        >>> from tigerlily.sequences import createNucleicSequenceGroup
+        >>> seq = NucleicSequence('GGAATTCC',identifier='foo')
+        >>> seqgroup = createNucleicSequenceGroup(seq)
         >>> index = FixedTree(seqgroup,2)
         >>> index.alignments('GG')
         [('foo', 0, True)]
