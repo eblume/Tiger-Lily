@@ -53,20 +53,18 @@ class GenomicSequence(PolymerSequence):
     
     An example where the constraint fails:
     
-    >>> seq = raw.RawSequence('LAVVUGHTLK')
+    >>> seq = raw.RawSequence('CAGTTACTm')
     >>> genomic = seq.convert(GenomicSequence)
     Traceback (most recent call last):
         ...
-    ValueError: Invalid genomic sequence format: LAVVUGHTLK
+    ValueError: Invalid genomic sequence format
 
     """
 
     
     def __init__(self,sequence,identifier=None):
-        if not re.match(r'[atgcATGCN]+',sequence):
-            raise ValueError('Invalid genomic sequence format: {}'.format(
-                sequence,
-            ))
+        if not re.match(r'[atgcATGCN]+$',sequence):
+            raise ValueError('Invalid genomic sequence format')
 
         self._sequence = sequence
         self._identifier = identifier

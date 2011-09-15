@@ -43,11 +43,15 @@ class AminoSequence(PolymerSequence):
             ...
         ValueError: invalid character in AminoSequence
         """
-        pass
+        if not re.match(r'[ABCDEFGHIKLMNOPQRSTUVWYZX*\-]+$',sequence):
+            raise ValueError('invalid character in AminoSequence')
+
+        self._sequence = sequence
+        self._identifier = identifier
 
     @property
     def sequence(self):
-        pass
+        return self._sequence
 
     @property
     def identifier(self):
@@ -56,12 +60,7 @@ class AminoSequence(PolymerSequence):
         If the identifier has not been explicitly set, the default identifier
         will be used instead.
         """
-        pass
-
-    def _format(self):
-        raise NotImplementedError('Attempt to format an amino sequence. '
-                                  'Try casting to another sequence type first.')
-    def write(self,file):
-        raise NotImplementedError('Attempt to write an amino sequence. '
-                                  'Try casting to another sequence type first.')
+        if self._identifier is None:
+            return super().identifier
+        return self._identifier
 

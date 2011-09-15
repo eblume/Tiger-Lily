@@ -20,6 +20,10 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
+# TODO - stricter validation of input for correctness, including
+#        (especially) converted sequences
+
 from tigerlily.sequences.sequence import FormattedSequence, PolymerSequenceGroup
 
 class FASTASequence(FormattedSequence):
