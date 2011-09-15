@@ -264,7 +264,7 @@ GENETIC_CODE_AMINO = {
 def _generate_inverse_gc_matrix(matrix):
     """Private initializer to create the inverse of the genetic code matrix.
 
-    Importantly, this initializer will also detect inconsitancies in the above
+    Importantly, this initializer will also detect inconsistancies in the above
     matrix and raise ValueError if either of the following two occur:
         1. A given codon is listed twice in any two amino acids' groups.
         2. Some possible codon is not listed in the above matrix.
