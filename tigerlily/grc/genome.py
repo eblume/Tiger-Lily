@@ -113,3 +113,4 @@ class GRCGenome(ReferenceGenome):
         <assembly> is one of GRCGenome.SUPPORTED_ASSEMBLES - if not,
         ValueError will be raised.
         """
+        pass
