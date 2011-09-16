@@ -21,6 +21,12 @@
 #
 
 import abc
+import os
+import tarfile
+import io
+from urllib.request import FancyURLopener
+
+from tigerlily.sequences import FASTA
 
 class ReferenceGenome(metaclass=abc.ABCMeta):
     """Abstract base class for all Genome objects.
@@ -45,6 +51,20 @@ class ReferenceGenome(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError('attempt to call abstract method sequences()')
 
+
+SUPPORTED_ASSEMBLIES = {
+    'hg19' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/'
+             'chromFa.tar.gz',
+    'test1': 'file://{}'.format(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    'test_assemblies',
+                    'test1.tar.gz'),
+             ),
+}
+# TODO: hg18-hg15 use .zip. This should still be supportable.
+DEFAULT_ASSEMBLY = 'h19'
+
 class GRCGenome(ReferenceGenome):
     """Fetch, store, load, parse, and extract sequences from a GCR ref assembly
 
@@ -59,9 +79,8 @@ class GRCGenome(ReferenceGenome):
     GRC reference genomes.
 
     Support for different assemblies will be added manually to this class. For
-    a list of supported assemblies by their name, see
-    GRCGenome.SUPPORTED_ASSEMBLIES . The default (most current) assembly will
-    be stored in GRCGenome.DEFAULT_ASSEMBLY
+    a list of supported assemblies by their name, see SUPPORTED_ASSEMBLIES .
+    The default (most current) assembly will be stored in DEFAULT_ASSEMBLY
 
     For the convenience of faster non-networked tests, extremely small made-up
     reference genomes are provided inside of this package in a folder called
@@ -70,13 +89,16 @@ class GRCGenome(ReferenceGenome):
     start with 'test' (eg. 'test1', 'test2', 'testnomask', etc.).
     """
 
-    # Default assembly goes FIRST
-    SUPPORTED_ASSEMBLIES = ['hg19','test1']
-    # TODO: hg18-hg15 use .zip. This should still be supportable.
-    DEFAULT_ASSEMBLY = SUPPORTED_ASSEMBLIES[0]
+    def __init__(self):
+        """Initializer for a GRCGenome object.
+
+        Do not call this method directly. Instead, call either
+        GRCGenome.download or GRCGenome.load
+        """
+        self._sequences = None
     
     def sequences(self):
-        """Created a MixedSequenceGroup of the FASTA sequences from this ref.
+        """Create a MixedSequenceGroup of the FASTA sequences from this ref.
 
         >>> from tigerlily.sequences import PolymerSequenceGroup
         >>> refgen = GRCGenome.download('test1')
@@ -84,15 +106,14 @@ class GRCGenome(ReferenceGenome):
         >>> isinstance(seqs,PolymerSequenceGroup)
         True
         """
-        pass
+        return self._sequences
 
     @classmethod
     def download(cls,name=DEFAULT_ASSEMBLY,store=False,silent=True):
         """Download a reference genome of the given name, and return a GRCGenome
 
-        Fetches the named reference assembly (default is
-        GRCGenome.DEFAULT_ASSEMBLY) from the UCSC Genome Browser, and creates
-        a new GRCGenome object to handle it.
+        Fetches the named reference assembly (default is DEFAULT_ASSEMBLY) from
+        the web, and creates a new GRCGenome object to handle it.
 
         If store is False (default), the data will be kept entirely in memory,
         and will be destroyed as soon as the object is released. If True,
@@ -121,26 +142,81 @@ class GRCGenome(ReferenceGenome):
         True
         >>> os.unlink('test1.tar.gz')
 
+        Only supported reference genome assemblies are allowed, otherwise
+        ValueError will be raised.
+
+        >>> GRCGenome.download('invalid')
+        Traceback (most recent call last):
+            ...
+        ValueError: Unknown or unsupported reference genome specified
         """
         # TODO: make sure to take advantage of the md5sum file if it
         #       exists.
-        pass
+
+        if name not in SUPPORTED_ASSEMBLIES:
+            raise ValueError('Unknown or unsupported reference genome'
+                             ' specified')
+
+        url = SUPPORTED_ASSEMBLIES[name]
+        client = FancyURLopener()
+        
+        data = client.open(url).read()
+
+        if store:
+            if store is True:
+                target = '{}.tar.gz'.format(name)
+            else:
+                target = store
+
+            if os.path.exists(target):
+                raise ValueError('The specified reference assembly already '
+                                 'exists')
+            
+            open(target,'wb').write(data)
+
+        buffer = io.BytesIO(data)
+
+        return GRCGenome.load_archive(tarfile.open(
+                                                   mode='r:gz',
+                                                   fileobj=buffer,
+                                                  ))
+        
 
     @classmethod
     def load(cls,path):
         """Load the given .tar.gz archive file as a downloaded GRC Genome.
 
-        It is expected that this file will be named <assembly>.tar.gz and that
-        <assembly> is one of GRCGenome.SUPPORTED_ASSEMBLES - if not,
-        ValueError will be raised.
+        It is expected that this file will be named <assembly>.tar.gz
 
         >>> import os
         >>> refgen = GRCGenome.download('test1',store=True)
         >>> os.path.isfile('test1.tar.gz')
         True
         >>> refgen2 = GRCGenome.load('test1.tar.gz')
-        >>> len(refgen2.sequnces()) == len(refgen.sequences())
+        >>> len(refgen2.sequences()) == len(refgen.sequences())
         True
+        >>> os.unlink('test1.tar.gz')
         """
         # TODO - support different compression types
-        pass
+
+        archive = tarfile.open(name=path,mode='r:gz')
+
+        return GRCGenome.load_archive(archive)
+
+
+    @classmethod
+    def load_archive(cls,archive):
+        """Given an instance of tarfile.TarFile, load it as a ref. assembly."""
+        sequences = []
+
+        for member in archive.getmembers():
+            fasta = FASTA(file=archive.extractfile(member))
+            for seq in fasta:
+                sequences.append(seq)
+        
+        newgrc = GRCGenome()
+        newgrc._sequences = FASTA.load_sequences(*sequences)
+        return newgrc
+            
+        
+        
