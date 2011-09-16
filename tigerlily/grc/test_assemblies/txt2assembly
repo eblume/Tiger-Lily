@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+# txt2assembly - Simple scipt to create test assemblies
+# Authors:
+#   * Erich Blume <blume.erich@gmail.com>
+#
+# Copyright 2011 Erich Blume <blume.erich@gmail.com>
+#
+#   This file is part of Tiger Lily.
+#
+#   Tiger Lily is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   Tiger Lily is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# For all documentation, see the README file in this directory.
+
+import sys
+import os
+import tarfile
+import tempfile
+
+# UGLY PATH HACK
+# Because this script is intended almost exclusively for testing a development
+# build of tigerlily, we want to make absolutely sure that we only ever use
+# the tigerlily from which this folder is a subfolder - not any installed
+# version. However since this folder is NOT a subpackage (there is no
+# __init__.py), there does not exist a particularly good way to do this, at
+# least not that I am aware of. As a result, we add the tigerlily project
+# folder to sys.path, at the TOP of sys.path, so we always get our tigerlily
+
+sys.path.insert(0,os.path.join( # project/tigerlily/grc/test_assemblies
+    '..',                       # project/tigerlily/grc
+    '..',                       # project/tigerlily
+    '..',                       # project
+))
+
+from tigerlily.sequences import FASTASequence
+
+
+def main(args=sys.argv):
+    if ( len(args) != 2 or
+         len(args[1])<=len('.txt') or
+         not args[1].endswith('.txt')
+       ):
+        sys.stderr.write('Usage: ./{} <assembly>.txt'.format(args[0]))
+        sys.exit(1)
+
+    outf = '{}.tar.gz'.format(args[1][:-4])
+    tarout = tarfile.open(name=outf,mode='w:gz')
+    chrom_num = 0
+    for seqdata in open(args[1]):
+        chrom_num += 1
+        ident = 'chr{}'.format(chrom_num)
+        sequence = FASTASequence(sequence=seqdata, identifier=ident)
+        with tempfile.NamedTemporaryFile(mode='w') as chromfile:
+            sequence.write(chromfile)
+            chromfile.flush()
+            tarout.add(chromfile.name,arcname='{}.fa'.format(ident))
+
+if __name__ == '__main__':
+    sys.exit(main())
+

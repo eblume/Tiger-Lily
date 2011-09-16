@@ -7,5 +7,4 @@ clean:
 	-rm $(TEST_ASSEMBLIES)
 
 %.tar.gz : %.txt
-	echo Creating $@
-	./txt2assembly < $< > $@
+	./txt2assembly $< 

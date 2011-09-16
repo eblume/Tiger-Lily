@@ -147,7 +147,7 @@ class FASTA(PolymerSequenceGroup):
 
         if file:
             data = file.read()
-        else:
+        elif data:
             self._load(data)
 
     @classmethod
