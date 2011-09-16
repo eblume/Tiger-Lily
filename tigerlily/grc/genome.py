@@ -1,4 +1,4 @@
-# genome.py - Download and manage 
+# genome.py - Download and manage GRC reference genomes
 # Authors:
 #   * Erich Blume <blume.erich@gmail.com>
 #
@@ -19,14 +19,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-"""tigerlily.ncbi - functions and extensions for common GRC-related tasks.
-
-The members of this package generally interact with online or downloaded
-resources from the members of the GRC (Genome Reference Consortium) and
-other online resource entities such as NCBI, Sanger Institute, and the
-UCSC Genome Browser.
-"""
 
 import abc
 
