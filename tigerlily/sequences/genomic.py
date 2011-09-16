@@ -45,7 +45,7 @@ class NucleicSequence(PolymerSequence):
     they have a valid format() method. (Instead they will raise
     NotImplementedError.)
 
-    >>> from . import raw
+    >>> import tigerlily.sequences.raw as raw
     >>> seqdata = 'CTAGCATACTCACAGT'
     >>> seq = raw.RawSequence(seqdata)
     >>> nucleic = seq.convert(NucleicSequence)
@@ -177,7 +177,7 @@ class NucleicSequence(PolymerSequence):
         no Methionine is detected, ValueError will be raised. (It is not
         necessary for there to be a STOP codon.)
 
-        >>> nucleic = NucleicSequence('CA TGG TAT GTT TTG GGT TTA GAA ACG T')
+        >>> nucleic = NucleicSequence('CATGGTATGTTTTGGGTTTAGAAACGT')
         >>> amino = nucleic.translate()
         >>> amino.sequence
         'HGMFWV*KR'
@@ -193,8 +193,10 @@ class NucleicSequence(PolymerSequence):
         Here is an example using use_control_codes mode.
 
         >>> amino = nucleic.translate(use_control_codes=True)
+        >>> amino.sequence
         'FWV'
         >>> amino = nucleic.translate(use_control_codes=True,reading_frame=2)
+        >>> amino.sequence
         'VCFGFRN'
         >>> amino = nucleic.translate(use_control_codes=True,reading_frame=3)
         Traceback (most recent call last):
@@ -207,7 +209,28 @@ class NucleicSequence(PolymerSequence):
         # then the user can simply call template.reverse_complement() to get
         # the coding sequence. Is this true, or do you simply call
         # template.complement()?
-        pass
+        
+        # Before worrying about use_control_codes, just get the full
+        # translation.
+
+        aseq=''.join(GENETIC_CODE_CODON[self.sequence[i:i+3].replace('T','U')]
+                     for i in range(reading_frame-1,len(self.sequence),3)
+                     if len(self.sequence)-i >= 3
+                    )
+
+        if use_control_codes:
+            if not 'M' in aseq:
+                raise ValueError('No Methionine found in translated nucleic '
+                                 'sequence')
+            first_m_pos = aseq.find('M')
+            next_stop_pos = aseq.find('*',first_m_pos)
+            next_stop_pos = next_stop_pos if next_stop_pos != -1 else len(aseq)
+
+            aseq = aseq[first_m_pos+1:next_stop_pos]
+
+        return AminoSequence(aseq,identifier=self.identifier)
+            
+            
 
 class AminoSequence(PolymerSequence):
     """PolymerSequence for aminoacid sequences (e.g. protein sequences).
@@ -232,7 +255,8 @@ class AminoSequence(PolymerSequence):
             ...
         ValueError: invalid character in AminoSequence
         """
-        if not re.match(r'[ABCDEFGHIKLMNOPQRSTUVWYZX*]+$',sequence):
+        if not re.match(r'[ABCDEFGHIKLMNOPQRSTUVWYZX*]*$',sequence):
+            print("%%%%%%%", sequence)
             raise ValueError('invalid character in AminoSequence')
 
         self._sequence = sequence
