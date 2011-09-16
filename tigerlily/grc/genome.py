@@ -62,15 +62,27 @@ class GRCGenome(ReferenceGenome):
     a list of supported assemblies by their name, see
     GRCGenome.SUPPORTED_ASSEMBLIES . The default (most current) assembly will
     be stored in GRCGenome.DEFAULT_ASSEMBLY
+
+    For the convenience of faster non-networked tests, extremely small made-up
+    reference genomes are provided inside of this package in a folder called
+    'test_assemblies'. They can be loaded either by using the GRCGenome.load
+    method (as normal), or else by using GRCGenome.download with names that
+    start with 'test' (eg. 'test1', 'test2', 'testnomask', etc.).
     """
 
     # Default assembly goes FIRST
-    SUPPORTED_ASSEMBLIES = ['hg19']
+    SUPPORTED_ASSEMBLIES = ['hg19','test1']
     # TODO: hg18-hg15 use .zip. This should still be supportable.
     DEFAULT_ASSEMBLY = SUPPORTED_ASSEMBLIES[0]
     
     def sequences(self):
         """Created a MixedSequenceGroup of the FASTA sequences from this ref.
+
+        >>> from tigerlily.sequences import PolymerSequenceGroup
+        >>> refgen = GRCGenome.download('test1')
+        >>> seqs = refgen.sequences()
+        >>> isinstance(seqs,PolymerSequenceGroup)
+        True
         """
         pass
 
@@ -101,8 +113,17 @@ class GRCGenome(ReferenceGenome):
         the store option be set. Please do not use Tiger Lily to abuse the
         UCSC Genome Browser group's generosity in hosting these large files to
         the general public.
+
+        >>> refgen = GRCGenome.download('test1')
+        >>> refgen2 = GRCGenome.download('test1',store=True)
+        >>> import os
+        >>> os.path.isfile('test1.tar.gz')
+        True
+        >>> os.unlink('test1.tar.gz')
+
         """
-        # IMPORTANT: make sure to take advantage of the md5sum file
+        # TODO: make sure to take advantage of the md5sum file if it
+        #       exists.
         pass
 
     @classmethod
@@ -112,5 +133,14 @@ class GRCGenome(ReferenceGenome):
         It is expected that this file will be named <assembly>.tar.gz and that
         <assembly> is one of GRCGenome.SUPPORTED_ASSEMBLES - if not,
         ValueError will be raised.
+
+        >>> import os
+        >>> refgen = GRCGenome.download('test1',store=True)
+        >>> os.path.isfile('test1.tar.gz')
+        True
+        >>> refgen2 = GRCGenome.load('test1.tar.gz')
+        >>> len(refgen2.sequnces()) == len(refgen.sequences())
+        True
         """
+        # TODO - support different compression types
         pass
