@@ -1,0 +1,51 @@
+Instructions for the creation of test assemblies
+
+== CREATING A NEW TEST ASSEMBLY ==
+
+1. Think up a (new, unused) name for your test with no spaces that starts with
+   the word 'test', like 'test1' or 'testfasta' or 'test_with_a_LONG_name'. We
+   will just use the identifier <test> to refer to this name from now on.
+
+2. Create an empty file called <test>.txt in this folder.
+
+3. Add one sequence per line to <test>.txt with no spaces - each sequence will
+   become an individual 'assembly unit' (chromosome) in the reference genome
+   assembly. Try to keep the sequences short for testing purposes, although
+   there is no limit - just recall that you can't wrap a sequence on to a second
+   line (ie, if you want a 250 million nucleotide sequence then you will need a
+   250 million character long line. I would avoid making such a long sequence.)
+
+   By the way, in the resulting assembly each line is called 'chrN', where N is
+   the line the sequence occured on.
+
+4. Open Makefile in a text editor, and add <test> to the TEST_ASSEMBLIES
+   variable.
+
+5. Run 'make all' to regenerate every test assembly, or just 'make <test>' to
+   generate your own.
+
+If your test assembly is for personal use, you are now done. If you want to
+distribute it to the project repository, continue to 6:
+
+6. Re-execute the full project test suite at the main project directory
+   (test.sh)
+
+7. Please check in both the source assembly (the .txt) as well as the
+   generated archive file (the .tar.gz) and the updated Makefile.
+
+
+You may also use the 'txt2assembly' tool which takes assembly text files from
+STDIN and writes assembly archives to STDOUT, but please consider using the
+Makefile to avoid errors.
+
+
+== UPDATING AN EXISTING TEST ASSEMBLY ==
+
+This process is very straightforward.
+
+1. Edit <test>.txt to reflect your changes.
+
+2. Assuming that <test> is in the Makefile, just run 'make all' or 'make <test>'
+
+3. Check in the result to git if desired, and you're done.
+
