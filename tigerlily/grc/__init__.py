@@ -28,3 +28,6 @@ other online resource entities such as NCBI, Sanger Institute, and the
 UCSC Genome Browser.
 """
 
+from tigerlily.grc.genome import (GRCGenome, ReferenceGenome, 
+    SUPPORTED_ASSEMBLIES, DEFAULT_ASSEMBLY)
+
