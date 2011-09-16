@@ -154,11 +154,12 @@ class FASTA(PolymerSequenceGroup):
     def load_sequences(cls,*sequences):
         """Create a new FASTA object from a list of arbitrary sequences.
 
-        >>> from tigerlily.sequences import RawSequence,GenomicSequence
+        >>> from tigerlily.sequences import RawSequence,NucleicSequence
         >>> seq1 = RawSequence('AACGGTTACGATCAGGACTACGGGAGGAGAGA')
-        >>> seq2 = GenomicSequence('ACGGACTTACCAGGACTACGGACTCAGACG')
+        >>> seq2 = NucleicSequence('ACGGACTTACCAGGACTACGGACTCAGACG')
         >>> fasta = FASTA.load_sequences(seq1,seq2)
         >>> len(fasta)
+        2
         """
         newfasta = FASTA()
         for seq in sequences:
