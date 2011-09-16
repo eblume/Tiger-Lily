@@ -18,7 +18,7 @@ Instructions for the creation of test assemblies
    By the way, in the resulting assembly each line is called 'chrN', where N is
    the line the sequence occured on.
 
-4. Open Makefile in a text editor, and add <test> to the TEST_ASSEMBLIES
+4. Open Makefile in a text editor, and add <test>.tar.gz to the TEST_ASSEMBLIES
    variable.
 
 5. Run 'make all' to regenerate every test assembly, or just 'make <test>' to
