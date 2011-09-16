@@ -101,7 +101,8 @@ class FASTA(PolymerSequenceGroup):
         file may point to a file-like object from which the source data will
         be read. data may point to a string in which the same will be done.
 
-        If both file and data are set, ValueError will be raised.
+        If both file and data are set, ValueError will be raised. You may
+        create an empty FASTA object if you like by specifying neither.
 
         Note that this formatter uses the NCBI definition of the FASTA format,
         which you can find at this URL:
@@ -142,13 +143,27 @@ class FASTA(PolymerSequenceGroup):
         if file and data:
             raise ValueError('Only specify file or data, not both')
 
-        if not file and not data:
-            raise ValueError('You must specify file or data, but not both.')
+        self._sequences = []
 
         if file:
             data = file.read()
+        else:
+            self._load(data)
 
-        self._load(data)
+    @classmethod
+    def load_sequences(cls,*sequences):
+        """Create a new FASTA object from a list of arbitrary sequences.
+
+        >>> from tigerlily.sequences import RawSequence,GenomicSequence
+        >>> seq1 = RawSequence('AACGGTTACGATCAGGACTACGGGAGGAGAGA')
+        >>> seq2 = GenomicSequence('ACGGACTTACCAGGACTACGGACTCAGACG')
+        >>> fasta = FASTA.load_sequences(seq1,seq2)
+        >>> len(fasta)
+        """
+        newfasta = FASTA()
+        for seq in sequences:
+            newfasta._sequences.append(seq.convert(FASTASequence))
+        return newfasta
 
     def __iter__(self):
         for seq in self._sequences:
@@ -193,7 +208,6 @@ class FASTA(PolymerSequenceGroup):
 
     def _load(self,data):
         # TODO - performance optimization? This might be VERY slow on large sets
-        self._sequences = []
 
         if data[0] != '>':
             raise ValueError('Improperly formatted data')
