@@ -1,4 +1,4 @@
-# __init__.py - Package meta file for tigerlily.format
+# __init__.py - Package meta file for tigerlily.sequences
 # Authors:
 #   * Erich Blume <blume.erich@gmail.com>
 #
