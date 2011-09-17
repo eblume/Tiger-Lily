@@ -24,6 +24,8 @@ import abc
 import os
 import tarfile
 import io
+import time
+import math
 from urllib.request import FancyURLopener
 
 from tigerlily.sequences import FASTA
@@ -61,6 +63,7 @@ SUPPORTED_ASSEMBLIES = {
                     'test_assemblies',
                     'test1.tar.gz'),
              ),
+    'test_biopython': 'http://biopython.org/DIST/biopython-1.58.tar.gz',
 }
 # TODO: hg18-hg15 use .zip. This should still be supportable.
 DEFAULT_ASSEMBLY = 'h19'
@@ -159,8 +162,72 @@ class GRCGenome(ReferenceGenome):
 
         url = SUPPORTED_ASSEMBLIES[name]
         client = FancyURLopener()
+
+        if silent:
+            def disable_login(host,realm):
+                raise EnvironmentError('Requested resource requires a password '
+                                       'but silent mode was enabled')
+            client.prompt_user_passwd = disable_login
+            
+            status_hook = None
+        else:
+            start_download_time = time.time()
+
+            print("Downloading",url)
+    
+            def convert_time(seconds,show_hours):
+                if show_hours:
+                    hours = math.floor(seconds/3600)
+                    seconds -= 3600 * hours
+                    minutes = math.floor(seconds/60)
+                    seconds -= 60 * minutes
+                    seconds = math.ceil(seconds)
+                    return '{hh:02}:{mm:02}:{ss:02}'.format(
+                        hh=hours, mm=minutes, ss=seconds,
+                    )
+                else:
+                    minutes = math.floor(seconds/60)
+                    seconds -= 60 * minutes
+                    seconds = math.ceil(seconds)
+                    return '{mm:02}:{ss:02}'.format(mm=minutes,ss=seconds)
+
+            def status_hook(block_count,block_size,total_size):
+                elapsed_download_time = time.time() - start_download_time
+                received_bytes = block_count * block_size
+
+                if received_bytes == 0:
+                    return
+
+                if total_size > 0:
+                    remaining_bytes = total_size - received_bytes 
+                    seconds_per_byte = elapsed_download_time / received_bytes
+                    remaining_time = remaining_bytes * seconds_per_byte
+                    if remaining_time < 0:
+                        # It means we're basically done anyway (last byte)
+                        remaining_time = elapsed_download_time
+                    total_time = total_size * seconds_per_byte
+
+                    show_hours = total_time > 3600
+
+                    print("\033[F\033[K{elp} | {tot} : {prog: <30} | {rem} "
+                          "({i}K / {t}K)".format(
+                        elp = convert_time(elapsed_download_time,show_hours),
+                        tot = convert_time(total_time,show_hours),
+                        prog = '='*math.floor(30*(received_bytes/total_size)),
+                        rem = convert_time(remaining_time,show_hours),
+                        i = math.ceil(received_bytes / 1024),
+                        t = math.ceil(total_size / 1024),
+                    ))
+
+                else: 
+                    # We don't know how big the file is, so... yeah
+                    print('\033[F\033[KRecieved: {} bytes'.format(
+                          received_bytes))
+            print('Sending file request...')
+                
         
-        data = client.open(url).read()
+        filename,headers = client.retrieve(url,reporthook=status_hook)
+        data = open(filename,'rb').read()
 
         if store:
             if store is True:
