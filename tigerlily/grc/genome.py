@@ -181,14 +181,14 @@ class GRCGenome(ReferenceGenome):
                     seconds -= 3600 * hours
                     minutes = math.floor(seconds/60)
                     seconds -= 60 * minutes
-                    seconds = math.ceil(seconds)
+                    seconds = math.floor(seconds)
                     return '{hh:02}:{mm:02}:{ss:02}'.format(
                         hh=hours, mm=minutes, ss=seconds,
                     )
                 else:
                     minutes = math.floor(seconds/60)
                     seconds -= 60 * minutes
-                    seconds = math.ceil(seconds)
+                    seconds = math.floor(seconds)
                     return '{mm:02}:{ss:02}'.format(mm=minutes,ss=seconds)
 
             def status_hook(block_count,block_size,total_size):
