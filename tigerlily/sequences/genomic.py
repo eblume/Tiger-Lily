@@ -83,23 +83,9 @@ class NucleicSequence(PolymerSequence):
     @property
     def identifier(self):
         """The identifier for this read.
-
-        If the identifier was unspecified, a placeholder will be used that
-        includes a hash value checksum of the sequence.
-
-        >>> seq = NucleicSequence('GGGACTG')
-        >>> seq.identifier
-        'UnknownSeq_7276410743868358753'
-        >>> seq = NucleicSequence('AGGCTA')
-        >>> seq.identifier
-        'UnknownSeq_-8092672563224726703'
-        >>> seq = NucleicSequence('AGGCTA',identifier='chr1')
-        >>> seq.identifier
-        'chr1'
         """
-        # TODO - don't use hash(), use something smarter.
         if self._identifier is None:
-            return 'UnknownSeq_{}'.format(hash(self._sequence))
+            return super().identifier
         return self._identifier
 
     def reverse(self):
