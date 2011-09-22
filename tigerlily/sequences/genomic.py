@@ -319,6 +319,7 @@ class AminoSequence(PolymerSequence):
         'GGTATG'
 
         """
+        # TODO - this is WAY slow. Either speed it up, or dump it.
 
         if not allow_size_mismatch and (
             len(self.sequence) != len(compare.sequence)
@@ -340,6 +341,7 @@ class AminoSequence(PolymerSequence):
                 if best_fit_distance is None or dist < best_fit_distance:
                     best_fit_distance = dist
                     best_fit = translation_a
+                    break
         return best_fit
         
 def reverse_complement(sequence):
