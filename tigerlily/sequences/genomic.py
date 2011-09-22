@@ -25,6 +25,7 @@ import string
 
 from tigerlily.sequences.sequence import PolymerSequence
 from tigerlily.sequences.mixed import MixedSequenceGroup
+from tigerlily.utility import *
 
 
 COMPLEMENT_TRANS = str.maketrans('atgcATGC','tacgTACG')
@@ -262,6 +263,27 @@ class AminoSequence(PolymerSequence):
         if self._identifier is None:
             return super().identifier
         return self._identifier
+
+    def closest_translation(self,compare):
+        """Return a Nucleic Sequence that might code for both amino sequences.
+        
+        Given two Amino Sequences of equal length, gives a NucleicSequence that
+        could most closely encode both amino acid sequences. In the case that
+        more than one NucleicSequence would be equally likely to encode both
+        given amino sequences, one will be chosen in an undefined manner.
+
+        To put it another way, the result is one possible translation of the
+        parent amino sequence such that the translation is the closest (in terms
+        of Levenshtein edit distance) to some translation of another sequence.
+
+        >>> s1 = AminoSequence('KQ')
+        >>> s2 = AminoSequence('MK')
+        >>> con = s1.closest_consensus(s2)
+        >>> con.sequence
+        'AAGCAG'
+
+        """
+        pass
         
 def reverse_complement(sequence):
     """Compute the reverse complement of the input string.
