@@ -31,9 +31,25 @@ Tigerlily does not support Python 2.x, and no plans exist to provide such
 support. For a strong biological sciences python package for python 2,
 see biopython: http://www.biopython.org
 
-==PACKAGE INFORMATION==
+==DOCUMENTATION==
 
-Nothing at this time. (Check back later!)
+For documentation, see TigerLily.pdf in the base project folder.
+
+This documentation may be out of date depending on whether or not the developers
+did their job and re-generated the documentation before the release. If you
+suspect that the documentation is out of date, or if you are using code from
+the repository (and not from a release), you can re-generate the documentation
+by going in to the 'docs' directory and executing 'make generate' followed by
+'make latexpdf'. You will then need to copy the generated pdf file from
+_build/latex/TigerLily.pdf to the root project folder.
+
+This documentation generation process uses several non-standard applications
+including Sphinx. Installation of these packages is beyond the scope of this
+document, but as a tip, note that as of this writing Sphinx is not ported to
+python 3, so you need to get the development version. Be sure to run the unit
+tests of Sphinx if you do this. See 
+http://groups.google.com/group/sphinx-dev/browse_thread/thread/42a35bf1ccd91794/8a7d536cca879e5f
+for pointers.
 
 ==RELEASE HISTORY==
 
