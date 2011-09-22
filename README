@@ -39,9 +39,7 @@ This documentation may be out of date depending on whether or not the developers
 did their job and re-generated the documentation before the release. If you
 suspect that the documentation is out of date, or if you are using code from
 the repository (and not from a release), you can re-generate the documentation
-by going in to the 'docs' directory and executing 'make generate' followed by
-'make latexpdf'. You will then need to copy the generated pdf file from
-_build/latex/TigerLily.pdf to the root project folder.
+by going in to the 'docs' folder and executing 'make tigerlily'.
 
 This documentation generation process uses several non-standard applications
 including Sphinx. Installation of these packages is beyond the scope of this
