@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         = 
 BUILDDIR      = _build
-GENERATED_SOURCES = generated
+GENERATED_SOURCES = _srcdocs
 SRC_GEN       = ./generate_modules.py
 PACKAGES      = ../tigerlily
 
