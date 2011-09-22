@@ -287,62 +287,6 @@ class AminoSequence(PolymerSequence):
             yield NucleicSequence(trans,identifier='{}_translation'.format(
                                                             self.identifier))
 
-    def closest_translation(self,compare,allow_size_mismatch=False):
-        """Return a Nucleic Sequence that might code for both amino sequences.
-        
-        Given two Amino Sequences of equal length, gives a NucleicSequence that
-        could most closely encode both amino acid sequences. In the case that
-        more than one NucleicSequence would be equally likely to encode both
-        given amino sequences, one will be chosen in an undefined manner.
-
-        To put it another way, the result is one possible translation of the
-        parent amino sequence such that the translation is the closest (in terms
-        of Hamming edit distance) to some translation of another sequence.
-
-        If allow_size_mismatch is set to True, then the two amino sequences may
-        be of a different length. In this case they will use the Levenshtein
-        distance instead. This mode can cause a tremendous slowdown in
-        performance.
-
-        >>> s1 = AminoSequence('KQ')
-        >>> s2 = AminoSequence('M*')
-        >>> con = s1.closest_translation(s2)
-        >>> con.sequence
-        'AAGCAA'
-
-        Here is an example using sequences of different lengths.
-
-        >>> s3 = AminoSequence('GM')
-        >>> s4 = AminoSequence('W')
-        >>> con = s3.closest_translation(s4,allow_size_mismatch=True)
-        >>> con.sequence
-        'GGTATG'
-
-        """
-        # TODO - this is WAY slow. Either speed it up, or dump it.
-
-        if not allow_size_mismatch and (
-            len(self.sequence) != len(compare.sequence)
-            ):
-            raise ValueError('Attempt to translate between sequences of '
-                             'disparate lengths')
-
-
-        best_fit = None
-        best_fit_distance = None
-        for translation_a in self.translations():
-            for translation_b in compare.translations():
-                if allow_size_mismatch:
-                    dist = levenshtein_distance(translation_a.sequence,
-                                            translation_b.sequence)
-                else:
-                    dist = hamming_distance(translation_a.sequence,
-                                            translation_b.sequence)
-                if best_fit_distance is None or dist < best_fit_distance:
-                    best_fit_distance = dist
-                    best_fit = translation_a
-                    break
-        return best_fit
         
 def reverse_complement(sequence):
     """Compute the reverse complement of the input string.
