@@ -40,7 +40,11 @@ help:
 	@echo "  changes    to make an overview of all changed/added/deprecated items"
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
-	@echo "  generate   to generate documentation the from source code"
+	@echo "  generate   to generate documentation sources from the project source code"
+	@echo ""
+	@echo "For Tiger Lily, try:"
+	@echo " make generate"
+	@echo " make latexpdf" 
 
 clean:
 	-rm -rf $(BUILDDIR)/*
