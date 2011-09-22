@@ -310,6 +310,14 @@ class AminoSequence(PolymerSequence):
         >>> con.sequence
         'AAGCAA'
 
+        Here is an example using sequences of different lengths.
+
+        >>> s3 = AminoSequence('GM')
+        >>> s4 = AminoSequence('W')
+        >>> con = s3.closest_translation(s4,allow_size_mismatch=True)
+        >>> con.sequence
+        'GGTATG'
+
         """
 
         if not allow_size_mismatch and (
