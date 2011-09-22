@@ -66,13 +66,14 @@ class NucleicSequence(PolymerSequence):
     >>> nucleic = seq.convert(NucleicSequence)
     Traceback (most recent call last):
         ...
-    ValueError: Invalid nucleic sequence format
+    ValueError: Invalid nucleic sequence format: CAGTTACTm
     """
 
     
     def __init__(self,sequence,identifier=None):
         if not re.match(r'[ATGC]+$',sequence):
-            raise ValueError('Invalid nucleic sequence format')
+            raise ValueError('Invalid nucleic sequence format: {}'.format(
+                                                    sequence))
 
         self._sequence = sequence
         self._identifier = identifier
@@ -141,8 +142,7 @@ class NucleicSequence(PolymerSequence):
         """Convert this NucleicSequence to a corresponding AminoSequence.
 
         Conversion is performed by taking each codon and replacing it with
-        the corresponding amino acid. In the nucleic sequence, thymine (T)
-        is automatically converted to uracil (U). In biological terms,
+        the corresponding amino acid. In biological terms,
         translate() assumes that the NucleicSequence object's sequence is
         the coding sequence (and not the template). Incidentally, to get
         the coding sequence of a template, just call
@@ -159,8 +159,8 @@ class NucleicSequence(PolymerSequence):
         processing algorithm. The new algorithm is like the first one (including
         the reading_frame), but after processing has finished the following
         constraint is placed upon the strand: all amino acids prior to and
-        including the first Methionine (M/AUG) will be removed, and all amino
-        acids after the first STOP codon (*/UAA,UGA,UAG) will be removed. If
+        including the first Methionine (M/ATG) will be removed, and all amino
+        acids after the first STOP codon (*/TAA,TGA,TAG) will be removed. If
         no Methionine is detected, ValueError will be raised. (It is not
         necessary for there to be a STOP codon.)
 
@@ -200,7 +200,7 @@ class NucleicSequence(PolymerSequence):
         # Before worrying about use_control_codes, just get the full
         # translation.
 
-        aseq=''.join(GENETIC_CODE_CODON[self.sequence[i:i+3].replace('T','U')]
+        aseq=''.join(GENETIC_CODE_CODON[self.sequence[i:i+3]]
                      for i in range(reading_frame-1,len(self.sequence),3)
                      if len(self.sequence)-i >= 3
                     )
@@ -243,7 +243,6 @@ class AminoSequence(PolymerSequence):
         ValueError: invalid character in AminoSequence
         """
         if not re.match(r'[ABCDEFGHIKLMNOPQRSTUVWYZX*]*$',sequence):
-            print("%%%%%%%", sequence)
             raise ValueError('invalid character in AminoSequence')
 
         self._sequence = sequence
@@ -264,6 +263,30 @@ class AminoSequence(PolymerSequence):
             return super().identifier
         return self._identifier
 
+    def translations(self):
+        """Generate every NucleicSequence that could translate to this.
+    
+        Because any given AminoSequence might have multiple nucleic acid
+        sequences that could translate in to it, this generator function will
+        iterate over every possible NucleicSequence object that could make this
+        AminoSequence.
+
+        Note that the generated NucleicSequence objects do not use any sort
+        of genomic signaling or encoding parameters - in other words, stop and
+        start codons are not implicitly added unless the AminoSequence 
+        contained them to begin with.
+
+        >>> s1 = AminoSequence('NDC')
+        >>> trans = [x.sequence for x in s1.translations()]
+        >>> len(trans)
+        8
+        >>> 'AATGATTGT' in trans
+        True
+        """
+        for trans in _translations(self.sequence):
+            yield NucleicSequence(trans,identifier='{}_translation'.format(
+                                                            self.identifier))
+
     def closest_translation(self,compare):
         """Return a Nucleic Sequence that might code for both amino sequences.
         
@@ -277,13 +300,23 @@ class AminoSequence(PolymerSequence):
         of Levenshtein edit distance) to some translation of another sequence.
 
         >>> s1 = AminoSequence('KQ')
-        >>> s2 = AminoSequence('MK')
-        >>> con = s1.closest_consensus(s2)
+        >>> s2 = AminoSequence('M*')
+        >>> con = s1.closest_translation(s2)
         >>> con.sequence
-        'AAGCAG'
+        'AAGCAA'
 
         """
-        pass
+
+        best_fit = None
+        best_fit_distance = None
+        for translation_a in self.translations():
+            for translation_b in compare.translations():
+                dist = levenshtein_distance(translation_a.sequence,
+                                            translation_b.sequence)
+                if best_fit_distance is None or dist < best_fit_distance:
+                    best_fit_distance = dist
+                    best_fit = translation_a
+        return best_fit
         
 def reverse_complement(sequence):
     """Compute the reverse complement of the input string.
@@ -323,32 +356,48 @@ def createNucleicSequenceGroup(*sequences):
 
     return new_group
 
+def _translations(sequence):
+    """Recursively return generate all possible translations of the amino seq.
+
+    See AminoSequence.translations() for further details.
+    """
+    prefixes = GENETIC_CODE_AMINO[sequence[0]]
+    suffix = sequence[1:]
+    
+    if suffix:
+        for prefix in prefixes:
+            for suf in _translations(suffix):
+                yield '{}{}'.format(prefix,suf)
+    else:
+        for prefix in prefixes:
+            yield prefix
+
 
 #### Genetic Code matrix   ####
 
 # GENETIC_CODE_AMINO - the genetic code, going from amino acid to codon
 GENETIC_CODE_AMINO = {
-    'A': {'GCU','GCC','GCA','GCG'},
-    'R': {'CGU','CGC','CGA','CGG','AGA','AGG'},
-    'N': {'AAU','AAC'},
-    'D': {'GAU','GAC'},
-    'C': {'UGU','UGC'},
+    'A': {'GCT','GCC','GCA','GCG'},
+    'R': {'CGT','CGC','CGA','CGG','AGA','AGG'},
+    'N': {'AAT','AAC'},
+    'D': {'GAT','GAC'},
+    'C': {'TGT','TGC'},
     'Q': {'CAA','CAG'},
     'E': {'GAA','GAG'},
-    'G': {'GGU','GGC','GGA','GGG'},
-    'H': {'CAU','CAC'},
-    'I': {'AUU','AUC','AUA'},
-    'M': {'AUG'},
-    'L': {'UUA','UUG','CUU','CUC','CUA','CUG'},
+    'G': {'GGT','GGC','GGA','GGG'},
+    'H': {'CAT','CAC'},
+    'I': {'ATT','ATC','ATA'},
+    'M': {'ATG'},
+    'L': {'TTA','TTG','CTT','CTC','CTA','CTG'},
     'K': {'AAA','AAG'},
-    'F': {'UUU','UUC'},
-    'P': {'CCU','CCC','CCA','CCG'},
-    'S': {'UCU','UCC','UCA','UCG','AGU','AGC'},
-    'T': {'ACU','ACC','ACA','ACG'},
-    'W': {'UGG'},
-    'Y': {'UAU','UAC'},
-    'V': {'GUU','GUC','GUA','GUG'},
-    '*': {'UAA','UGA','UAG'}
+    'F': {'TTT','TTC'},
+    'P': {'CCT','CCC','CCA','CCG'},
+    'S': {'TCT','TCC','TCA','TCG','AGT','AGC'},
+    'T': {'ACT','ACC','ACA','ACG'},
+    'W': {'TGG'},
+    'Y': {'TAT','TAC'},
+    'V': {'GTT','GTC','GTA','GTG'},
+    '*': {'TAA','TGA','TAG'}
 }
 
 def _generate_inverse_gc_matrix(matrix):
@@ -373,7 +422,7 @@ def _generate_inverse_gc_matrix(matrix):
 
     from itertools import combinations_with_replacement as cPr
 
-    for codon in cPr('AUGC',3):
+    for codon in cPr('ATGC',3):
         codon = ''.join(codon)
         if not codon in inv_matrix:
             raise ValueError('Codon {} is not listed in '
