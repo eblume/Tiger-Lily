@@ -49,20 +49,22 @@ clean:
 
 tigerlily: latexpdf
 	cp $(BUILDDIR)/latex/TigerLily.pdf ../
-	@echo ""
+	@echo
 	@echo "Tiger Lily project documentation update complete."
-	@echo ""
+	@echo
 	@echo "################### REMINDER ####################"
 	@echo "#   Check to make sure that you specified the   #"
 	@echo "#        correct version information in         #"
 	@echo "#            tigerlily/__init__.py              #"
 	@echo "#   (This notice applies to developers only)    #"
 	@echo "#################################################"
-	@echo ""
-	@echo ""
+	@echo
+	@echo
 
 generate:
-	$(SRC_GEN) -d $(GENERATED_SOURCES) $(PACKAGES)
+	$(SRC_GEN) -d $(GENERATED_SOURCES) -s rst $(PACKAGES)
+	@echo 
+	@echo "Finished generating source code documentation templates"
 
 html: generate
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
