@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-PAPER         =
+PAPER         = letter
 BUILDDIR      = _build
 GENERATED_SOURCES = generated
 SRC_GEN       = ./generate_modules.py
