@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Tiger Lily'
-copyright = '2011, Erich Blume'
+copyright = '2011, Erich Blume <blume.erich@gmail.com>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -185,7 +185,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'TigerLily.tex', 'Tiger Lily Documentation',
-   'Erich Blume', 'manual'),
+   r'Erich Blume <blume.erich@gmail.com>\\Euclid Sun <euclidsun@gmail.com>', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
