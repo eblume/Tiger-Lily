@@ -22,6 +22,7 @@
 
 from tigerlily.index.index import GroupIndex
 from tigerlily.sequences import reverse_complement
+from tigerlily.utility import hamming_distance, greatest_common_prefix
 
 class FixedTree(GroupIndex):
     """GroupIndex wrapper which implements a Fixed-Width Substring Tree.
@@ -338,52 +339,3 @@ class FixedTreeNode:
         return alignments
         
 
-def hamming_distance(s1,s2):
-    """Return the Hamming edit distance between s1 and s2.
-
-    The Hamming edit distance is defined as the number of individual alterations
-    performed on characters in one string in order to turn it in to another
-    string of the same length.
-
-    If s1 and s2 are not the same length, ValueError will be raised.
-
-    >>> hamming_distance('party','party')
-    0
-    >>> hamming_distance('zebra','cobra')
-    2
-    >>> hamming_distance('one','three')
-    Traceback (most recent call last):
-        ...
-    ValueError: Cannot compute Hamming distance of strings of unequal length
-
-    With apologies to the fine editors of wikipedia.com for kernel of this
-    code.
-
-    """
-    if len(s1) != len(s2):
-        raise ValueError('Cannot compute Hamming distance of strings of '
-                         'unequal length')
-    return sum(ch1 != ch2 for ch1,ch2 in zip(s1,s2))
-        
-
-def greatest_common_prefix(s1,s2):
-    """Return the length of the longest common prefix between s1 and s2.
-
-    >>> greatest_common_prefix('banana','bandit')
-    3
-    >>> greatest_common_prefix('apple','sour apple')
-    0
-    >>> greatest_common_prefix('tree','tree')
-    4
-
-    """
-    ls1 = len(s1)
-    ls2 = len(s2)
-    smaller_length = ls1 if ls1 < ls2 else ls2
-
-    for i in range(smaller_length):
-        if s1[i] != s2[i]:
-            return i
-
-    return smaller_length
-    

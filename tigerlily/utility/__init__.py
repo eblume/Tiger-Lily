@@ -20,4 +20,6 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
+from tigerlily.utility.string_relations import ( hamming_distance,
+    greatest_common_prefix, levenshtein_distance
+)
