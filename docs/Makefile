@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-PAPER         = letter
+PAPER         = 
 BUILDDIR      = _build
 GENERATED_SOURCES = generated
 SRC_GEN       = ./generate_modules.py
@@ -51,7 +51,15 @@ tigerlily: latexpdf
 	cp $(BUILDDIR)/latex/TigerLily.pdf ../
 	@echo ""
 	@echo "Tiger Lily project documentation update complete."
-	@echo "!!!! Check to make sure that you specified the correct version information in tigerlily/__init__.py !!!!"
+	@echo ""
+	@echo "################### REMINDER ####################"
+	@echo "#   Check to make sure that you specified the   #"
+	@echo "#        correct version information in         #"
+	@echo "#            tigerlily/__init__.py              #"
+	@echo "#   (This notice applies to developers only)    #"
+	@echo "#################################################"
+	@echo ""
+	@echo ""
 
 generate:
 	$(SRC_GEN) -d $(GENERATED_SOURCES) $(PACKAGES)
