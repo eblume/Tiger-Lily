@@ -41,14 +41,17 @@ help:
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 	@echo "  generate   to generate documentation sources from the project source code"
-	@echo ""
-	@echo "For Tiger Lily, try:"
-	@echo " make generate"
-	@echo " make latexpdf" 
+	@echo "  tigerlily  run through the standard release procedure for the Tiger Lily project"
 
 clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -rf $(GENERATED_SOURCES)/*
+
+tigerlily: clean generate latexpdf
+	cp $(BUILDDIR)/latex/TigerLily.pdf ../
+	@echo ""
+	@echo "Tiger Lily project documentation update complete."
+	@echo "!!!! Check to make sure that you specified the correct version information in tigerlily/__init__.py !!!!"
 
 generate:
 	$(SRC_GEN) -d $(GENERATED_SOURCES) $(PACKAGES)
