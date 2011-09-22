@@ -2,7 +2,8 @@ Tiger Lily
 Sequencing tools for Python 3
 Copyright 2011 Erich Blume <blume.erich@gmail.com>
 
-==LICENSE==
+LICENSE
+=======
 
 This file is part of Tiger Lily.
 
@@ -20,18 +21,21 @@ You should have received a copy of the GNU General Public License
 along with Tiger Lily, in a file called COPYING.  If not, see
 <http://www.gnu.org/licenses/>.
 
-==INSTALLATION==
+INSTALLATION
+============
 
 See INSTALLATION. This is a standard setuptools setup, if you already know the
 procedure.
 
-==USING PYTHON 2.x==
+USING PYTHON 2.x
+----------------
 
 Tigerlily does not support Python 2.x, and no plans exist to provide such
 support. For a strong biological sciences python package for python 2,
 see biopython: http://www.biopython.org
 
-==DOCUMENTATION==
+DOCUMENTATION
+=============
 
 For documentation, see TigerLily.pdf in the base project folder.
 
@@ -49,13 +53,19 @@ tests of Sphinx if you do this. See
 http://groups.google.com/group/sphinx-dev/browse_thread/thread/42a35bf1ccd91794/8a7d536cca879e5f
 for pointers.
 
-==RELEASE HISTORY==
+RELEASE HISTORY
+===============
 
 Wow, you're reading this before any releases have been made. Aren't you special!
 
-==CONTRIBUTION==
+CONTRIBUTION
+============
 
 Feel free to clone this repository and use it under the licensing terms.
+
+Additionally, as the project is now on github, you may submit patches, ticket
+requests, edit the wiki, send pull requests - anything you like and have
+the permissions to do. I will enjoy any and all contributions, I'm sure! :)
 
 As always, you can contact the author at <blume.erich@gmail.com>.
 
