@@ -48,8 +48,9 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -rf $(GENERATED_SOURCES)/*
 
-tigerlily: latexpdf
+tigerlily: latexpdf singlehtml
 	cp $(BUILDDIR)/latex/TigerLily.pdf ../
+	cp $(BUILDDIR)/singlehtml/index.html ../DOCUMENTATION.html
 	@echo
 	@echo "Tiger Lily project documentation update complete."
 	@echo
