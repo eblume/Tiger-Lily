@@ -11,6 +11,24 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+Sequences and Formats
+=====================
+
+.. automodule:: tigerlily.sequences
+    :members:
+
+Indexes
+=======
+
+.. automodule:: tigerlily.index
+    :members:
+
+Genome Reference Consortium
+===========================
+
+.. automodule:: tigerlily.grc
+    :members:
+
 Indices and tables
 ==================
 
