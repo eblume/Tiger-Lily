@@ -287,7 +287,7 @@ class AminoSequence(PolymerSequence):
             yield NucleicSequence(trans,identifier='{}_translation'.format(
                                                             self.identifier))
 
-    def closest_translation(self,compare):
+    def closest_translation(self,compare,allow_size_mismatch=False):
         """Return a Nucleic Sequence that might code for both amino sequences.
         
         Given two Amino Sequences of equal length, gives a NucleicSequence that
@@ -297,7 +297,12 @@ class AminoSequence(PolymerSequence):
 
         To put it another way, the result is one possible translation of the
         parent amino sequence such that the translation is the closest (in terms
-        of Levenshtein edit distance) to some translation of another sequence.
+        of Hamming edit distance) to some translation of another sequence.
+
+        If allow_size_mismatch is set to True, then the two amino sequences may
+        be of a different length. In this case they will use the Levenshtein
+        distance instead. This mode can cause a tremendous slowdown in
+        performance.
 
         >>> s1 = AminoSequence('KQ')
         >>> s2 = AminoSequence('M*')
@@ -307,11 +312,22 @@ class AminoSequence(PolymerSequence):
 
         """
 
+        if not allow_size_mismatch and (
+            len(self.sequence) != len(compare.sequence)
+            ):
+            raise ValueError('Attempt to translate between sequences of '
+                             'disparate lengths')
+
+
         best_fit = None
         best_fit_distance = None
         for translation_a in self.translations():
             for translation_b in compare.translations():
-                dist = levenshtein_distance(translation_a.sequence,
+                if allow_size_mismatch:
+                    dist = levenshtein_distance(translation_a.sequence,
+                                            translation_b.sequence)
+                else:
+                    dist = hamming_distance(translation_a.sequence,
                                             translation_b.sequence)
                 if best_fit_distance is None or dist < best_fit_distance:
                     best_fit_distance = dist
