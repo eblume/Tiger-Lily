@@ -23,6 +23,12 @@ import tigerlily
 
 # -- General configuration -----------------------------------------------------
 
+# Authors - a list of tuples, Author Name and Email
+AUTHORS = [
+    ('Erich Blume', 'blume.erich@gmail.com'),
+    ('Euclid Sun', 'euclidsun@gmail.com'),
+]
+
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
@@ -79,7 +85,7 @@ exclude_patterns = ['_build']
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
-#show_authors = False
+show_authors = True
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -178,14 +184,15 @@ latex_elements = {
 #'pointsize': '10pt',
 
 # Additional stuff for the LaTeX preamble.
-#'preamble': '',
+'preamble': r'\setcounter{tocdepth}{10}',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'TigerLily.tex', 'Tiger Lily Documentation',
-   r'Erich Blume <blume.erich@gmail.com>\\Euclid Sun <euclidsun@gmail.com>', 'manual'),
+   r'\\'.join('{} <{}>'.format(author,email) for author,email in AUTHORS),
+   'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -215,7 +222,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'tigerlily', 'Tiger Lily Documentation',
-     ['Erich Blume'], 1)
+     [author for author,email in AUTHORS], 1)
 ]
 
 # If true, show URL addresses after external links.

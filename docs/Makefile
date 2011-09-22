@@ -6,8 +6,9 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         = 
 BUILDDIR      = _build
-GENERATED_SOURCES = _srcdocs
+GENERATED_SOURCES = srcdocs
 SRC_GEN       = ./generate_modules.py
+DOC_DEPTH     = 999
 PACKAGES      = ../tigerlily
 
 # Internal variables.
@@ -61,8 +62,8 @@ tigerlily: latexpdf
 	@echo
 	@echo
 
-generate:
-	$(SRC_GEN) -d $(GENERATED_SOURCES) -s rst $(PACKAGES)
+generate: clean
+	$(SRC_GEN) -d $(GENERATED_SOURCES) -s rst -m $(DOC_DEPTH) $(PACKAGES)
 	@echo 
 	@echo "Finished generating source code documentation templates"
 
