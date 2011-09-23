@@ -262,7 +262,6 @@ class GRCGenome(ReferenceGenome):
         True
         >>> os.unlink('test1.tar.gz')
         """
-        # TODO - support different compression types
 
         archive = tarfile.open(name=path,mode='r:gz')
 
