@@ -65,7 +65,7 @@ SUPPORTED_ASSEMBLIES = {
              ),
     'test_biopython': 'http://biopython.org/DIST/biopython-1.58.tar.gz',
 }
-# TODO: hg18-hg15 use .zip. This should still be supportable.
+
 DEFAULT_ASSEMBLY = 'h19'
 
 class GRCGenome(ReferenceGenome):
