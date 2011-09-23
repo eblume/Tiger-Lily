@@ -185,8 +185,6 @@ class FixedTree(GroupIndex):
         [('foo', 0, True), ('foo', 1, True)]
 
         """
-        # TODO - instead of returning at most maximum_alignments, return NO
-        #        alignments if more than mximum_alignments are found
 
         if self.width != len(sequence):
             raise ValueError('aligned read is not the right width for this '
