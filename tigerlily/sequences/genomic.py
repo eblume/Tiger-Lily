@@ -191,12 +191,6 @@ class NucleicSequence(PolymerSequence):
         ValueError: No Methionine found in translated nucleic sequence
     
         """
-        # TODO - EXTREMELY IMPORTANT - above, I claim that if the user
-        # has a NucleicSequence that is equivalent to the template strand,
-        # then the user can simply call template.reverse_complement() to get
-        # the coding sequence. Is this true, or do you simply call
-        # template.complement()?
-        
         # Before worrying about use_control_codes, just get the full
         # translation.
 
