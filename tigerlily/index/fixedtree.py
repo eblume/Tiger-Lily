@@ -47,7 +47,8 @@ class FixedTree(GroupIndex):
         """Creates a FixedTree from the given sequence_group and fixed width.
 
         sequence_group may be any subclass of
-        tigerlily.sequences.PolymerSequenceGroup, although it will most usually         be a MixedSequenceGroup composed of NucleicSequence objects that
+        tigerlily.sequences.PolymerSequenceGroup, although it will most usually
+        be a MixedSequenceGroup composed of NucleicSequence objects that
         correspond to reference chromosomes. 
 
         width is an integer that must be greater than 0, although for reasonable
