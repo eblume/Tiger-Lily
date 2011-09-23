@@ -1,6 +1,6 @@
 Tiger Lily
 
-Sequencing tools for Python 3
+Bioinformatics tools for Python 3
 
 Copyright 2011 Erich Blume <blume.erich@gmail.com>
 
