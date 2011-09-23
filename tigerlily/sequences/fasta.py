@@ -205,7 +205,6 @@ class FASTA(PolymerSequenceGroup):
             seq.write(file)
 
     def _load(self,data):
-        # TODO - performance optimization? This might be VERY slow on large sets
 
         if data[0] != '>':
             raise ValueError('Improperly formatted data')
