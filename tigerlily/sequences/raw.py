@@ -121,8 +121,6 @@ class Raw(sequence.PolymerSequenceGroup):
 
     def _load(self,data):
         self._sequences = []
-        # TODO - use line numbers for identifiers? Probably yes but I'm
-        #        leaving it out now for expediency
         for line in data.split('\n'):
             line = line.rstrip()
             if not line:
