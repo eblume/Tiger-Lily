@@ -153,8 +153,6 @@ class GRCGenome(ReferenceGenome):
             ...
         ValueError: Unknown or unsupported reference genome specified
         """
-        # TODO: make sure to take advantage of the md5sum file if it
-        #       exists.
 
         if name not in SUPPORTED_ASSEMBLIES:
             raise ValueError('Unknown or unsupported reference genome'
