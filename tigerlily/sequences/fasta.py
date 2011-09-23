@@ -21,9 +21,6 @@
 #
 
 
-# TODO - stricter validation of input for correctness, including
-#        (especially) converted sequences
-
 from tigerlily.sequences.sequence import FormattedSequence, PolymerSequenceGroup
 
 class FASTASequence(FormattedSequence):
