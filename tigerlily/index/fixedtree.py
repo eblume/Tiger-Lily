@@ -151,12 +151,14 @@ class FixedTree(GroupIndex):
         If maximum_alignments is an integer greater than 0, then only that many
         alignments will be found - after that many are found, the search ends.
 
-        If best_alignments is False, then every possible alignment will be found
+        If best_alignments is True, then every possible alignment will be found
         even if maximum_alignments is set. Then, alignments are reported in
         increasing order of their edit distance from the search sequence. In
         general, this function will slow down the search considerably,
         particularly if maximum_alignments is set (since the primary benefit of
-        maximim_alignments will be negated.)
+        maximim_alignments will be negated.) If left at False, no sorting is
+        performed and the search can end as soon maximum_alignments has been
+        reached.
 
         This will raise ValueError if the given sequence does not match the
         pre-specified width of the index.
@@ -183,6 +185,8 @@ class FixedTree(GroupIndex):
         [('foo', 0, True), ('foo', 1, True)]
 
         """
+        # TODO - instead of returning at most maximum_alignments, return NO
+        #        alignments if more than mximum_alignments are found
 
         if self.width != len(sequence):
             raise ValueError('aligned read is not the right width for this '
