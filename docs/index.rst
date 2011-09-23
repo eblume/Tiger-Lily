@@ -4,5 +4,8 @@
    contain the root `toctree` directive.
 
 .. toctree::
+
+   sections/about
+   sections/examples
    srcdocs/modules
 
