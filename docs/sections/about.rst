@@ -1,5 +1,5 @@
 About Tiger Lily
-===============
+================
 
 Tiger Lily is a package  written  for
 `Python 3 <www.python.org>`_ which provides tools
@@ -48,7 +48,7 @@ What this means to you, the user, is that you should feel comfortable in knowing
 that Tiger Lily (if we are doing our job) is staying current and relevant.
 
 What about Biopython?
-_________________________
+---------------------
 
 As the reader may or may not be aware, there is already a similar project to 
 Tiger Lily called `Biopython <http://biopython.org/wiki/Main_Page>`_.

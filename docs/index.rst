@@ -5,7 +5,6 @@
 
 .. toctree::
 
-   sections/about
-   sections/examples
+   sections/pre_source_sections
    srcdocs/modules
 
