@@ -71,6 +71,17 @@ their consideration. Still, Tiger Lily will be developed as though
 the goal were to eventually have Tiger Lily be the go-to resource for python
 bioinformatics.
 
+About the Authors
+-----------------
+
+Tiger Lily was started by `Erich Blume <mailto:blume.erich@gmail.com>`_, an
+undergraduate Computer Science student at San Jose State University. Having some
+experience at a San Francisco Bay area biotech company with short read sequence
+alignment, Erich wanted to make Tiger Lily as the focus of a Bioinformatics
+class project. `Euclid Sun <mailto:euclidsun@gmail.com>`_
+is a classmate of Erich's studying Biochemistry and a fellow member of the
+SJSU computer science club.
+
 Why 'Tiger Lily'?
 -----------------
 
