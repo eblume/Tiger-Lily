@@ -124,7 +124,7 @@ def get_dest(url,dest=None,makedirs=False, overwrite=False):
     By default, the filepath will be the basename of the url inside of the
     current working directory.
 
-    If ``dest`` is specified as a folder, the filepathw ill be the basename
+    If ``dest`` is specified as a folder, the filepath will be the basename
     of the url inside of ``dest``. If ``dest`` is specified as a complete
     filepath, it will be the returned filepath.
 

@@ -117,7 +117,7 @@ class GRCGenome(ReferenceGenome):
         Fetches the named reference assembly (default is DEFAULT_ASSEMBLY) from
         the web, and creates a new GRCGenome object to handle it.
 
-        If store is False (default), the data will be kept entirely in memory,
+        If store is False (default), the data will be kept in a temporary file,
         and will be destroyed as soon as the object is released. If True,
         the .tar.gz of the entire assembly will be saved in the current
         directory - ValueError will be raised if this file seems to already
