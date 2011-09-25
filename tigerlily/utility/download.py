@@ -57,6 +57,9 @@ class ConsoleDownloader(urllib.request.FancyURLopener):
         filepath = get_dest(url,dest=filename,makedirs=makedirs,
                             overwrite=overwrite)
         hook = None if silent else self._make_reporthook()
+        if not silent:
+            print('Downloading',url)
+            print('Sending file request...')
         return super().retrieve(url,filename=filepath,reporthook=hook,**kwargs)
         
     def _make_reporthook(self):
@@ -154,7 +157,13 @@ def get_dest(url,dest=None,makedirs=False, overwrite=False):
                                dest))
 
     if makedirs:
-        os.makedirs(os.path.dirname(dest),exist_ok = True)
+        try:
+            os.makedirs(os.path.dirname(dest),exist_ok = True)
+        except OSError as err:
+            # Even though exist_ok is specified there is some weird thing where
+            # OSError can still be raised, particularly when tempfile is being
+            # used. Wonder why?
+            pass
     elif not os.path.isdir(os.path.dirname(dest)):
         raise EnvironmentError('Destination folder {} does not exist'
                                .format(os.path.dirname(dest)))

@@ -23,3 +23,7 @@
 from tigerlily.utility.string_relations import ( hamming_distance,
     greatest_common_prefix, levenshtein_distance
 )
+
+from tigerlily.utility.download import (
+    ConsoleDownloader, get_dest
+)

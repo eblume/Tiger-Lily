@@ -24,11 +24,10 @@ import abc
 import os
 import tarfile
 import io
-import time
-import math
-from urllib.request import FancyURLopener
+import tempfile
 
 from tigerlily.sequences import FASTA
+from tigerlily.utility.download import ConsoleDownloader
 
 class ReferenceGenome(metaclass=abc.ABCMeta):
     """Abstract base class for all Genome objects.
@@ -159,94 +158,32 @@ class GRCGenome(ReferenceGenome):
                              ' specified')
 
         url = SUPPORTED_ASSEMBLIES[name]
-        client = FancyURLopener()
+        client = ConsoleDownloader()
 
-        if silent:
-            def disable_login(host,realm):
-                raise EnvironmentError('Requested resource requires a password '
-                                       'but silent mode was enabled')
-            client.prompt_user_passwd = disable_login
-            
-            status_hook = None
+        # Generate target
+        if store and store is True:
+            target = '{}.tar.gz'.format(name)
+        elif store:
+            target = store
         else:
-            start_download_time = time.time()
+            temp = tempfile.NamedTemporaryFile()
+            target = temp.name
 
-            print("Downloading",url)
-    
-            def convert_time(seconds,show_hours):
-                if show_hours:
-                    hours = math.floor(seconds/3600)
-                    seconds -= 3600 * hours
-                    minutes = math.floor(seconds/60)
-                    seconds -= 60 * minutes
-                    seconds = math.floor(seconds)
-                    return '{hh:02}:{mm:02}:{ss:02}'.format(
-                        hh=hours, mm=minutes, ss=seconds,
-                    )
-                else:
-                    minutes = math.floor(seconds/60)
-                    seconds -= 60 * minutes
-                    seconds = math.floor(seconds)
-                    return '{mm:02}:{ss:02}'.format(mm=minutes,ss=seconds)
+        client.retrieve(url,filename=target, silent=silent, makedirs=True,
+                            overwrite=True)
 
-            def status_hook(block_count,block_size,total_size):
-                elapsed_download_time = time.time() - start_download_time
-                received_bytes = block_count * block_size
-
-                if received_bytes == 0:
-                    return
-
-                if total_size > 0:
-                    remaining_bytes = total_size - received_bytes 
-                    seconds_per_byte = elapsed_download_time / received_bytes
-                    remaining_time = remaining_bytes * seconds_per_byte
-                    if remaining_time < 0:
-                        # It means we're basically done anyway (last byte)
-                        remaining_time = elapsed_download_time
-                    total_time = total_size * seconds_per_byte
-
-                    show_hours = total_time > 3600
-
-                    print("\033[F\033[K{elp} | {tot} : {prog: <30} | {rem} "
-                          "({i}K / {t}K)".format(
-                        elp = convert_time(elapsed_download_time,show_hours),
-                        tot = convert_time(total_time,show_hours),
-                        prog = '='*math.floor(30*(received_bytes/total_size)),
-                        rem = convert_time(remaining_time,show_hours),
-                        i = math.ceil(received_bytes / 1024),
-                        t = math.ceil(total_size / 1024),
-                    ))
-
-                else: 
-                    # We don't know how big the file is, so... yeah
-                    print('\033[F\033[KRecieved: {} bytes'.format(
-                          received_bytes))
-            print('Sending file request...')
-                
-        
-        filename,headers = client.retrieve(url,reporthook=status_hook)
-        data = open(filename,'rb').read()
-
+        # Generate buffer (file obj of target)
         if store:
-            if store is True:
-                target = '{}.tar.gz'.format(name)
-            else:
-                target = store
+            buffer = open(target,'rb')
+        else:
+            buffer = temp
+            buffer.seek(0)
 
-            if os.path.exists(target):
-                raise ValueError('The specified reference assembly already '
-                                 'exists')
-            
-            open(target,'wb').write(data)
-
-        buffer = io.BytesIO(data)
-
-        return GRCGenome.load_archive(tarfile.open(
+        return GRCGenome.load_tarfile(tarfile.open(
                                                    mode='r:gz',
                                                    fileobj=buffer,
                                                   ))
         
-
     @classmethod
     def load(cls,path):
         """Load the given .tar.gz archive file as a downloaded GRC Genome.
@@ -265,11 +202,11 @@ class GRCGenome(ReferenceGenome):
 
         archive = tarfile.open(name=path,mode='r:gz')
 
-        return GRCGenome.load_archive(archive)
+        return GRCGenome.load_tarfile(archive)
 
 
     @classmethod
-    def load_archive(cls,archive):
+    def load_tarfile(cls,archive):
         """Given an instance of tarfile.TarFile, load it as a ref. assembly."""
         sequences = []
 
