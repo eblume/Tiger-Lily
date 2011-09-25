@@ -71,7 +71,9 @@ class Downloader:
         directories in the final path will cause ``EnvironmentError`` to be
         raised.
         """
-        self.client.retrieve(url,filname=self._get_dest(url,dest,makedirs))
+        dest = self._get_dest(url,dest,makedirs)
+        self.client.retrieve(url,filename=dest)
+        return dest
 
     def _get_dest(url,dest,makedirs):
         """Helper function to generate a filepath to the destination.
