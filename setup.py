@@ -50,7 +50,7 @@ setup(
     packages = find_packages(),
     scripts = glob.glob(os.path.join(os.path.dirname(__file__),'scripts/*')),
     
-    # Non-python files that are required by the install
+    # Non-python files that are equired by the install
     package_data = {
         'tigerlily' : ['grc/test_assemblies/*',],
         # 'package_name' : ['*.txt','*.dat'],
@@ -59,6 +59,10 @@ setup(
     # Required packages for installation
     install_requires = [
         'docutils>=0.3', # for reStructuredText processing
+    ],
+
+    setup_requires = [
+        'nose>=1.0',
     ],
 
     author = 'Erich Blume',
