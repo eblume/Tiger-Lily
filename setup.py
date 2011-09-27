@@ -69,4 +69,6 @@ setup(
     url = 'https://github.com/eblume/Tiger-Lily',
     download_url='https://github.com/eblume/Tiger-Lily/tarball/master',
     long_description = read('README.rst'),
+
+    test_suite = 'tests',
 )
