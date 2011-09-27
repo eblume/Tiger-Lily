@@ -12,3 +12,4 @@
 
 # Ignore the setuptools build directory
 /build
+*.egg-info
