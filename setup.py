@@ -21,9 +21,19 @@
 #
 
 import os
+import sys
 import glob
 
+# distribute stuff
+from distribute_setup import use_setuptools
+use_setuptools()
 from setuptools import setup, find_packages
+
+
+# Finally, Tiger Lily stuff
+sys.path.insert(0,'.')
+from tigerlily import VERSION_INFO
+
 
 # The following is taken from python.org:
 # Utility function to read the README file.
@@ -35,25 +45,28 @@ def read(fname):
 
 
 setup(
-    name = 'tigerliy',
-    version = '0.1-dev',
+    name = 'TigerLily',
+    version = VERSION_INFO[1],
     packages = find_packages(),
     scripts = glob.glob(os.path.join(os.path.dirname(__file__),'scripts/*')),
     
-    # Required packages
-    install_requires = [],
-    
     # Non-python files that are required by the install
     package_data = {
+        'tigerlily' : ['grc/test_assemblies/*',],
         # 'package_name' : ['*.txt','*.dat'],
     },
 
+    # Required packages for installation
+    install_requires = [
+        'docutils>=0.3', # for reStructuredText processing
+    ],
+
     author = 'Erich Blume',
     author_email = 'blume.erich@gmail.com',
-    description = ('Biological science tools for Python 3, with an emphasis '
-                  'on speed for high throughput sequencing.'),
+    description = ('Bioinformatics tools for Python 3'),
     license = 'GPLv3',
     keywords = 'python3 bioinformatics bio sequencing',
-    url = None,
-    long_description = read('README'),
+    url = 'https://github.com/eblume/Tiger-Lily',
+    download_url='https://github.com/eblume/Tiger-Lily/tarball/master',
+    long_description = read('README.rst'),
 )
