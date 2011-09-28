@@ -55,6 +55,14 @@ class ReferenceGenome(metaclass=abc.ABCMeta):
 SUPPORTED_ASSEMBLIES = {
     'hg19' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/'
              'chromFa.tar.gz',
+    'hg18' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg18/bigZips/'
+             'chromFa.zip',
+    'hg17' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg17/bigZips/'
+             'chromFa.zip',
+    'hg16' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg16/bigZips/'
+             'chromFa.zip',
+    'hg15' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg15/bigZips/'
+             'chromFa.zip',
     'test1': 'file://{}'.format(
                 os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
