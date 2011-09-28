@@ -35,8 +35,8 @@ import tigerlily.utility.archive as ar
 from tigerlily.sequences import FASTA
 
 
-class ConsoleDownloaderTests(unittest.TestCase):
-    """Test harness for ``tigerlily.utility.download.ConsoleDownloader`` class.
+class ArchiveTests(unittest.TestCase):
+    """Test harness for ``tigerlily.utility.archive.Archive`` class.
     """
 
     def setUp(self):
