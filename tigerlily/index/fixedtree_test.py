@@ -60,6 +60,7 @@ class FixedTreeTests(unittest.TestCase):
            #          ^^^                                                    
             'GGGGCGGAGCGGACGACTCATATTATCTACACACTACGCATGAGCTATGACCACATGGACTCA',  
            #                                                                 
+           # In other words, 'TTTTT' aligns 18 times with 1 mismatch
             identifier='seq3',
         )
 
@@ -91,6 +92,9 @@ class FixedTreeTests(unittest.TestCase):
 
         alignments = index.alignments('TTTTT',mismatches=1)
         self.assertEqual(len(alignments),18)
+        self.assertTrue(('seq3', 108, True) in alignments)
+        self.assertTrue(('seq3', 27, True) in alignments)
+        self.assertTrue(('seq3', 64, True) in alignments)
 
         self.assertFalse('CCCCC' in index)
         index.add_sequence(self.extra_seq,True)
