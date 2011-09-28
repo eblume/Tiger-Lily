@@ -25,5 +25,5 @@ from tigerlily.utility.string_relations import ( hamming_distance,
 )
 
 from tigerlily.utility.download import (
-    ConsoleDownloader, get_dest
+    ConsoleDownloader, make_filename
 )

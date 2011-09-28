@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # setup.py -  Install script for distutils
 # Authors:
 #   * Erich Blume <blume.erich@gmail.com>

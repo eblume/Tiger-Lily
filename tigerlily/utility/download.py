@@ -29,6 +29,8 @@ import os
 import sys
 import time
 import math
+import subprocess
+import tempfile
 
 
 class ConsoleDownloader(urllib.request.FancyURLopener):
@@ -37,39 +39,46 @@ class ConsoleDownloader(urllib.request.FancyURLopener):
     or alternately supports a silent non-interactive mode.
     """
 
-    def retrieve(self, url, filename=None, silent=False, makedirs=False,
-                 overwrite=False, **kwargs):
+    def retrieve(self, url, filename=None, silent=False, **kwargs):
         """Wrapper for ``urllib.request.URLopener.retrieve``.
 
-        Retrieves the contents of ``url`` and places it in a filepath 
-        calculated from url, filename, makedirs, and overwrite
-        (see ``get_dest``).
+        If *silent* is left as False, a status message will be printed to
+        the console informing the user of the progress on the file download.
 
-        If ``silent`` is set to ``False``, a status message indicator for the
-        download will be displayed for remote resources.
+        ***kwargs* will be passed to ``urllib.request.URLopener.retrieve``,
+        but please do not specify either ``'url'``, ``'filename'``, 
+        or ``'reporthook'``
+        as those values are provided by this function. As of this writing,
+        this leaves only ``'data'`` as an extra argument to specify in
+        ***kwargs*.
 
-        ``kwargs`` can be any argument that will be passed to 
-        ``urllib.request.URLopener.retrieve``, but please do not specify either
-        ``url``, ``filename``, or ``reporthook`` to avoid conflicting with
-        arguents given by this function. At the time of this writing, the
-        only option would be ``data``.
+        A helper function, ``make_filename``, has been provided in this
+        module to assist in creating filenames - see its documentation for
+        further information.
+
+        This function returns a tuple ``(filename, headers)`` as per the
+        documentation given in ``urllib.request.URLopener.retrieve``.
         """
-        filepath = get_dest(url,dest=filename,makedirs=makedirs,
-                            overwrite=overwrite)
         hook = None if silent else self._make_reporthook()
         if not silent:
             print('Downloading',url)
             print('Sending file request...')
-        return super().retrieve(url,filename=filepath,reporthook=hook,**kwargs)
+        return super().retrieve(url,filename=filename, reporthook=hook,**kwargs)
         
     def _make_reporthook(self):
         """Create a reporting function for a console download."""
         start_download_time = time.time()
         def _reporthook(block_count,block_size,total_size):
+            """Closure that prints the report each time a block is downloaded.
+
+            This closure uses control sequences to attempt to erase the previous
+            message, thus giving the illusion of a constantly updating progress
+            bar.
+            """
             elapsed_download_time = time.time() - start_download_time
             received_bytes = block_count * block_size
 
-            if block_count == 0 or block_count % 8 == 0:
+            if block_count % 8 == 0:
                 return
 
             if total_size > 0:
@@ -101,7 +110,25 @@ class ConsoleDownloader(urllib.request.FancyURLopener):
 
 
 def _convert_time(seconds,show_hours=False):
-    """Create a string form of the duration of the seconds given."""
+    """Create a string form of the duration of the seconds given.
+
+    >>> _convert_time(61)
+    '01:01'
+    >>> _convert_time(2)
+    '00:02'
+    >>> _convert_time(120)
+    '02:00'
+    >>> _convert_time(60*2)
+    '02:00'
+    >>> _convert_time(60*2-1)
+    '01:59'
+    >>> _convert_time(60*900)
+    '900:00'
+    >>> _convert_time(60*60*3+5, show_hours=True)
+    '03:00:05'
+    >>> _convert_time(60*60*200 + 60*61 + 17, show_hours=True)
+    '201:01:17'
+    """
     if show_hours:
         hours = math.floor(seconds/3600)
         seconds -= 3600 * hours
@@ -117,57 +144,52 @@ def _convert_time(seconds,show_hours=False):
         seconds = math.floor(seconds)
         return '{mm:02}:{ss:02}'.format(mm=minutes,ss=seconds)
 
-def get_dest(url,dest=None,makedirs=False, overwrite=False):
-    """Return (or create) a complete file path including file name for the
-    given url.
 
-    By default, the filepath will be the basename of the url inside of the
-    current working directory.
+def make_filename(name=None,dir=None, makedirs=False, overwrite=False):
+    """Return (or create) a complete file path, optionally creating directories.
 
-    If ``dest`` is specified as a folder, the filepath will be the basename
-    of the url inside of ``dest``. If ``dest`` is specified as a complete
-    filepath, it will be the returned filepath.
+    *name* will be the name of the file created, irrespective of (and not
+    including) the directory path that will contain the file. If left as
+    ``None``, a randomly generated file name will be chosen in the directory.
 
-    If ``makedirs`` is left as ``False`` (the default), then if the resulting
-    filepath contains directories that do not exist EnvironmentError will be
-    raised. Otherwise, if ``makedirs`` is ``True``, the directories will be
-    created.
+    *dir* will be the directory in which *name* is created. If left as
+    ``None``, the current working directory is used.
 
-    If ``overwrite`` is left as ``False``, EnvironmentError
-    will be raised if the
-    filepath already exists. Otherwise the file will be overwritten.
+    If the directory structure that will contain *name* does not exist,
+    EnvironmentError will be raised. This behavior can be surpressed by
+    enabling *makedirs*, in which case the necessary folders will be created.
+
+    If the resulting filepath already exists, EnvironmentError will be raised.
+    This behaior can be surpressed by enabling *overwrite*, which will simpy
+    return the filepath as generated (which would generally cause the file
+    to be overwritten, depending on what the caller uses the path for.)
     """
-    if dest is None or not os.path.basename(dest):
-        basename = os.path.basename(url)
-        if not basename:
-            # basename() couldn't find a suitable base name, make one up
-            basename = 'unknown_resource'
+    
+    if dir is None:
+        dir = os.getcwd()
 
-        if dest:
-            # We know from above that dest was set to a path (no basename)
-            basepath = dest
-        else:
-            basepath = os.getcwd()
+    if not os.path.isdir(dir) and makedirs:
+        #os.makedirs(os.path.dirname(dir), exist_ok=True)
+        # Unfortunately the above line of code doesn't seem to work as it
+        # doesn't honor exist_ok. We should probably submit a bug to the python
+        # team.
+        # 
+        # for now, let's just use a shell command - an ugly kludge but oh well.
+        subprocess.check_call(['mkdir','-p',dir])
+    elif not os.path.isdir(dir):
+        raise EnvironmentError('Download directory {} does not exist'.format(
+                               dir))
+
+    if name is None:
+        filename = tempfile.mktemp(prefix='unknown_resource',
+                                   dir=dir)
+    else:
+        filename = os.path.join(dir,name)
+
+    if os.path.isfile(filename):
+        if not overwrite:
+            raise EnvironmentError('Download file {} already exists'.format(
+                                   filename))
+    return filename
         
-        dest = os.path.join(basepath,basename)
-        
-
-    if os.path.isfile(dest) and not overwrite:
-        raise EnvironmentError('File with name {} already exists'.format(
-                               dest))
-
-    if makedirs:
-        try:
-            os.makedirs(os.path.dirname(dest),exist_ok = True)
-        except OSError as err:
-            # Even though exist_ok is specified there is some weird thing where
-            # OSError can still be raised, particularly when tempfile is being
-            # used. Wonder why?
-            pass
-    elif not os.path.isdir(os.path.dirname(dest)):
-        raise EnvironmentError('Destination folder {} does not exist'
-                               .format(os.path.dirname(dest)))
-
-    return dest
-
 

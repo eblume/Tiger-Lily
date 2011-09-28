@@ -27,7 +27,7 @@ import io
 import tempfile
 
 from tigerlily.sequences import FASTA
-from tigerlily.utility.download import ConsoleDownloader
+from tigerlily.utility.download import ConsoleDownloader, make_filename
 
 class ReferenceGenome(metaclass=abc.ABCMeta):
     """Abstract base class for all Genome objects.
@@ -124,7 +124,7 @@ class GRCGenome(ReferenceGenome):
         exist. If store is a string, it will be assumed to be a path to a
         directory (trailing slash optional) in which the .tar.gz archive should
         be stored. (Again, ValueError will be raised if the file already
-        exists.)
+        exists.) If necessary, any intermiediate directories will be created.
 
         If silent is False, status messages will be printed using print() to 
         keep the user informed of the progress. This is usually very important
@@ -160,21 +160,20 @@ class GRCGenome(ReferenceGenome):
         url = SUPPORTED_ASSEMBLIES[name]
         client = ConsoleDownloader()
 
-        # Generate target
         if store and store is True:
-            target = '{}.tar.gz'.format(name)
+            filename = make_filename(name='{}.tar.gz'.format(name))
         elif store:
-            target = store
+            name,dir = os.path.split(store)
+            filename = make_filename(name=name,dir=dir,makedirs=True)
         else:
             temp = tempfile.NamedTemporaryFile()
-            target = temp.name
-
-        client.retrieve(url,filename=target, silent=silent, makedirs=True,
-                            overwrite=True)
+            filename = temp.name
+            
+        client.retrieve(url, filename=filename, silent=silent)
 
         # Generate buffer (file obj of target)
         if store:
-            buffer = open(target,'rb')
+            buffer = open(filename,'rb')
         else:
             buffer = temp
             buffer.seek(0)
