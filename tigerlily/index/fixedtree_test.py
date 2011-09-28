@@ -78,7 +78,14 @@ class FixedTreeTests(unittest.TestCase):
     
     def test_store_index(self):
         "fixedtree.py: Test writing FixedTree to disk"
-        pass
+        index = ft.FixedTree(self.seq_grp,self.index_width)
+        self._search_index_subtest(index)
+        
+        index.save('test_save.idx')
+        self.assertTrue(os.path.isfile('test_save.idx'))
+
+        index2 = ft.FixedTree.load('test_save.idx')
+        self._search_index_subtest(index)
 
     def _search_index_subtest(self, index):
         "subtest to test the given tree index"
