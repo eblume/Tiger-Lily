@@ -35,4 +35,6 @@
 #              MAJOR.MINOR-dev : A development build. This is not actually
 #                                 a 'release' at all.
 
+"""tigerlily - a Python 3 package for bioinformatics"""
+
 VERSION_INFO = ('0.1','0.1-dev')

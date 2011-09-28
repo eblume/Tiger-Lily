@@ -20,6 +20,15 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""tigerlily.sequences - tools for handling polynomial sequences (DNA, RNA, etc)
+
+All sequences descend from two parent classes, ``PolymerSequence`` and
+``PolymerSequenceGroup``. Another group of ``PolymerSequence`` descendents
+inherit from ``FormattedSequence``, which adds support for printing or saving
+the sequence to some file format.
+
+"""
+
 from tigerlily.sequences.sequence import ( PolymerSequence, FormattedSequence,
     PolymerSequenceGroup, 
 )

@@ -20,6 +20,16 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""Support for the NCBI FASTA format.
+
+Only a subset of the NCBI specification for FASTA is supported. In particular,
+the sequences allowed in a NucleicSequence or an AminoSequence are allowed.
+
+This implementation honors the NCBI FASTA requirement that sequences not
+contain any comments (only a single identifier line is allowed), and that '>'
+is the only valid identifier character (not ';').
+"""
+
 
 from tigerlily.sequences.sequence import FormattedSequence, PolymerSequenceGroup
 
@@ -46,13 +56,20 @@ class FASTASequence(FormattedSequence):
     
     @property
     def sequence(self):
+        """The sequence of this FASTASequence."""
         return self._sequence
 
     @property
     def identifier(self):
+        """The identifier of this FASTASequence.
+
+        Note that unlike many other ``PolynomialSequence`` descendents, this
+        class *requires* a valid identifier to be given at init time.
+        """
         return self._identifier
 
     def _format(self):
+        """Internal function to get a format string from this sequence"""
         # Note that FASTA sequences are often times megabases-long. These
         # sequences will perform poorly in generating a single string.
         # Instead, you may wish to use the FASTA-specific 'write' method.
@@ -73,8 +90,8 @@ class FASTASequence(FormattedSequence):
         because this function doesn't store the entire sequence in memory a
         second time like .format() does (for text wrapping purposes).
         
-        *: OK, the performance will be mostly identical, it's just that the
-           memory footprint should be much smaller.
+        *: *OK, the performance will be mostly identical, it's just that the
+           memory footprint should be much smaller.*
         """
     
         seq = self.sequence
@@ -89,17 +106,14 @@ class FASTASequence(FormattedSequence):
 
 
 class FASTA(PolymerSequenceGroup):
-    """Implementation of an NCBI-compatible FASTA format.
-    """
-
     def __init__(self,file=None,data=None):
         r"""Load a FASTA set either from the given source.
 
-        file may point to a file-like object from which the source data will
-        be read. data may point to a string in which the same will be done.
+        *file* may point to a file-like object from which the source data will
+        be read. *data* may point to a ``str`` in which the same will be done.
 
-        If both file and data are set, ValueError will be raised. You may
-        create an empty FASTA object if you like by specifying neither.
+        If both *file* and *data* are set, ValueError will be raised. You may
+        create an empty ``FASTA`` object if you like by specifying neither.
 
         Note that this formatter uses the NCBI definition of the FASTA format,
         which you can find at this URL:
@@ -117,7 +131,7 @@ class FASTA(PolymerSequenceGroup):
         >>> len(seqs)
         2
 
-        We can then iterate over the FASTASequence sequences in this group:
+        We can then iterate over the ``FASTASequence`` sequences in this group:
 
         >>> for seq in seqs:
         ...     isinstance(seq,FASTASequence)
