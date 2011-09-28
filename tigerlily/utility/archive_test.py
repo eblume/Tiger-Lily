@@ -68,6 +68,7 @@ class ConsoleDownloaderTests(unittest.TestCase):
         self._handle_arch(arch)
 
     def _handle_arch(self,arch)
+        "handler for testing an Archive object regardless of format"
         self.assertEqual(len(arch.getnames()),4)
 
         fasta_files = [f for f in arch.getfasta()]
