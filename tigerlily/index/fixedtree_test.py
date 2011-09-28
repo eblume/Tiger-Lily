@@ -34,8 +34,8 @@ import os
 import shutil
 
 
-class ConsoleDownloaderTests(unittest.TestCase):
-    """Test harness for ``tigerlily.utility.download.ConsoleDownloader`` class.
+class FixedTreeTests(unittest.TestCase):
+    """Test harness for ``tigerlily.index.fixedtree.FixedTree`` class.
     """
 
     def setUp(self):
