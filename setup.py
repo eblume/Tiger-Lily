@@ -53,7 +53,9 @@ setup(
     
     # Non-python files that are equired by the install
     package_data = {
-        'tigerlily' : ['grc/test_assemblies/*',],
+        'tigerlily' : ['grc/test_assemblies/*',
+                       'utility/test_archives/*',
+                      ],
         # 'package_name' : ['*.txt','*.dat'],
     },
 
