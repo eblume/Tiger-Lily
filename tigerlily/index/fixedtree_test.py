@@ -33,6 +33,8 @@ import tempfile
 import os
 import shutil
 
+from tigerlily.sequences import createNucleicSequenceGroup, NucleicSequence
+import tigerlily.index.fixedtree as ft
 
 class FixedTreeTests(unittest.TestCase):
     """Test harness for ``tigerlily.index.fixedtree.FixedTree`` class.
@@ -44,8 +46,57 @@ class FixedTreeTests(unittest.TestCase):
         self.orig_dir = os.getcwd()
         os.chdir(self.test_dir)
 
+        self.seq_grp = createNucleicSequenceGroup(
+            NucleicSequence('TGTACGTACTTACGCATTCAGGCAGTCA',identifier='seq1'),
+            NucleicSequence('GGACTTTACTGACACGTTACTGGG',identifier='seq2'),
+        )
+    
+        # Comment '^' shows an alignment for 'TTTTT' with 1 mismatch
+        self.extra_seq = NucleicSequence('GGAACGTACTTATCGTCTGTCAGTACTTATTTAT'  
+           #                                                        ^^ ^^    
+            'TGGTCAGTTGAGGTTATACGTTATTTATTATTTTTATTATGTCAGGTCATTGGGCGATGTCAG'  
+           #                     ^^ ^^  ^^^^^^^                              
+            'GGTCGGTACGTTTTATCTGGTGGGCAGCTGCTGATATTATATATAGCGTACGCATAGCGCGCG'   
+           #          ^^^                                                    
+            'GGGGCGGAGCGGACGACTCATATTATCTACACACTACGCATGAGCTATGACCACATGGACTCA',  
+           #                                                                 
+            identifier='seq3',
+        )
+
+        self.index_width = 5
+
     def tearDown(self):
         """Remove the testing environment"""
         os.chdir(self.orig_dir)
         shutil.rmtree(self.test_dir)
+
+    def test_create_index(self):
+        """fixedtree.py: Test tree creation from NucleicSequence group"""
+        index = ft.FixedTree(self.seq_grp,self.index_width)
+        self._search_index_subtest(index)
     
+    def test_store_index(self):
+        "fixedtree.py: Test writing FixedTree to disk"
+        pass
+
+    def _search_index_subtest(self, index):
+        "subtest to test the given tree index"
+    
+        self.assertFalse('GGGGG' in index)
+        index.add_sequence(self.extra_seq,False)
+        self.assertTrue('GGGGG' in index)
+
+        alignments = index.alignments('TTTTT')
+        self.assertEqual(len(alignments),1)
+
+        alignments = index.alignments('TTTTT',mismatches=1)
+        self.assertEqual(len(alignments),18)
+
+        self.assertFalse('CCCCC' in index)
+        index.add_sequence(self.extra_seq,True)
+        self.assertTrue('CCCCC' in index)
+        
+
+
+        
+

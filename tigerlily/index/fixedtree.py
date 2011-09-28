@@ -99,7 +99,7 @@ class FixedTree(GroupIndex):
 
             if reverse:
                 alignment = (sequence.identifier,i,False)
-                self.root.insert(rev_comp(subseq),alignment)
+                self.root.insert(reverse_complement(subseq),alignment)
 
     def __contains__(self, sequence):
         """Return true if, given the arguments, the sequence is in the index.
