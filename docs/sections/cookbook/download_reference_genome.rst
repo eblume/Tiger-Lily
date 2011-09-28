@@ -21,7 +21,7 @@ First, let's download a genome and store it so that we can use it later.
 >>> import tigerlily.grc as grc
 >>> ref_genome = grc.GRCGenome.download('hg19',store=True,silent=False)
 Downloading http://.../chromFa.tar.gz
-05:26 | 05:26 : ============================== | 05:26 (926504K / 926501K)
+05:26 - 05:26 |==============================| 100% (926504K / 926501K)
 
 The actual message printed may vary, but this should be close to what you see.
 After the download is complete, the prompt may 'hang' for up to a few minutes

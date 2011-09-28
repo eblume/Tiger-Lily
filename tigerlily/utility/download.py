@@ -92,12 +92,14 @@ class ConsoleDownloader(urllib.request.FancyURLopener):
 
                 show_hours = total_time > 3600
 
-                print("\033[F\033[K{elp} | {tot} : {prog: <30} | {rem} "
+                percent_complete = math.floor(received_bytes/total_size)
+
+                print("\033[F\033[K{elp} - {tot} |{prog: <30}| {perc}% "
                       "({i}K / {t}K)".format(
                     elp = _convert_time(elapsed_download_time,show_hours),
                     tot = _convert_time(total_time,show_hours),
                     prog = '='*math.floor(30*(received_bytes/total_size)),
-                    rem = _convert_time(remaining_time,show_hours),
+                    perc = percent_complete,
                     i = math.ceil(received_bytes / 1024),
                     t = math.ceil(total_size / 1024),
                 ))
