@@ -10,6 +10,8 @@
 */__pycache__/*
 
 
-# Ignore the setuptools build directories
+# Ignore the setuptools build & test items
 /build
 *.egg-info
+.coverage
+

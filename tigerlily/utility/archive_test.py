@@ -41,7 +41,7 @@ class ConsoleDownloaderTests(unittest.TestCase):
 
     def setUp(self):
         """archive.py: Create the testing environment"""
-        self.test_dir = os.path.join(os.dirname(__file__),'test_archives')
+        self.test_dir = os.path.join(os.path.dirname(__file__),'test_archives')
         self.targz = os.path.join(self.test_dir, 'test_fasta_archive.tar.gz')
         self.tarbz2 = os.path.join(self.test_dir, 'test_fasta_archive.tar.bz2')
         self.tar = os.path.join(self.test_dir, 'test_fasta_archive.tar')
@@ -67,7 +67,7 @@ class ConsoleDownloaderTests(unittest.TestCase):
         arch = ar.Archive(filepath=self.zip)
         self._handle_arch(arch)
 
-    def _handle_arch(self,arch)
+    def _handle_arch(self,arch):
         "handler for testing an Archive object regardless of format"
         self.assertEqual(len(arch.getnames()),4)
 
@@ -82,8 +82,9 @@ class ConsoleDownloaderTests(unittest.TestCase):
         # and it would be bad if it failed, so let's do the test.
         for fasta_fileobj in arch.getfasta():
             fasta = FASTA(fasta_fileobj)
-            self.assertTrue(len(fasta.sequence) > 0)
-            self.assertTrue(fasta.identifier.startswith('seq'))
+            for fasta_seq in fasta:
+                self.assertTrue(len(fasta_seq.sequence) > 0)
+                self.assertTrue(fasta_seq.identifier.startswith('seq'))
     
         
         
