@@ -45,6 +45,9 @@ that 82% of Tiger Lily is 'covered' by a unit test. This does NOT indicate that
 only 82% of tests passed - the 'OK' at the end means that ALL (100%) tests
 passed.
 
+Importantly, please do not use the ``test`` argument to setup.py - Tiger Lily
+uses ``nosetests`` and is not configured to run a test suite with ``test``.
+
 
 Adding New Unit Tests to Tiger Lily
 -----------------------------------
