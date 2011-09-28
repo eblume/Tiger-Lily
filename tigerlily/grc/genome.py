@@ -22,12 +22,11 @@
 
 import abc
 import os
-import tarfile
-import io
 import tempfile
 
 from tigerlily.sequences import FASTA
 from tigerlily.utility.download import ConsoleDownloader, make_filename
+from tigerlily.utility.archive import Archive
 
 class ReferenceGenome(metaclass=abc.ABCMeta):
     """Abstract base class for all Genome objects.
@@ -119,9 +118,12 @@ class GRCGenome(ReferenceGenome):
 
         If store is False (default), the data will be kept in a temporary file,
         and will be destroyed as soon as the object is released. If True,
-        the .tar.gz of the entire assembly will be saved in the current
+        the entire assembly will be saved in the current
         directory - ValueError will be raised if this file seems to already
-        exist. If store is a string, it will be assumed to be a path to a
+        exist. The resulting file will have the '.assembly' suffix, and may be
+        either a .zip, a .tar, a .tar.gz, or a .tar.bz2 file. See 
+        ``tigerlily.utility.archive.Archive`` for more information.
+        If store is a string, it will be assumed to be a path to a
         directory (trailing slash optional) in which the .tar.gz archive should
         be stored. (Again, ValueError will be raised if the file already
         exists.) If necessary, any intermiediate directories will be created.
@@ -140,9 +142,9 @@ class GRCGenome(ReferenceGenome):
         >>> refgen = GRCGenome.download('test1')
         >>> refgen2 = GRCGenome.download('test1',store=True)
         >>> import os
-        >>> os.path.isfile('test1.tar.gz')
+        >>> os.path.isfile('test1.assembly')
         True
-        >>> os.unlink('test1.tar.gz')
+        >>> os.unlink('test1.assembly')
 
         Only supported reference genome assemblies are allowed, otherwise
         ValueError will be raised.
@@ -161,7 +163,7 @@ class GRCGenome(ReferenceGenome):
         client = ConsoleDownloader()
 
         if store and store is True:
-            filename = make_filename(name='{}.tar.gz'.format(name))
+            filename = make_filename(name='{}.assembly'.format(name))
         elif store:
             name,dir = os.path.split(store)
             filename = make_filename(name=name,dir=dir,makedirs=True)
@@ -171,46 +173,32 @@ class GRCGenome(ReferenceGenome):
             
         client.retrieve(url, filename=filename, silent=silent)
 
-        # Generate buffer (file obj of target)
-        if store:
-            buffer = open(filename,'rb')
-        else:
-            buffer = temp
-            buffer.seek(0)
-
-        return GRCGenome.load_tarfile(tarfile.open(
-                                                   mode='r:gz',
-                                                   fileobj=buffer,
-                                                  ))
+        return GRCGenome.load_archive(Archive(filepath=filename))
         
     @classmethod
-    def load(cls,path):
-        """Load the given .tar.gz archive file as a downloaded GRC Genome.
-
-        It is expected that this file will be named <assembly>.tar.gz
+    def load(cls,filename):
+        """Load the file given by filename as an ``Archive`` of a ref genome.
 
         >>> import os
         >>> refgen = GRCGenome.download('test1',store=True)
-        >>> os.path.isfile('test1.tar.gz')
+        >>> os.path.isfile('test1.assembly')
         True
-        >>> refgen2 = GRCGenome.load('test1.tar.gz')
+        >>> refgen2 = GRCGenome.load('test1.assembly')
         >>> len(refgen2.sequences()) == len(refgen.sequences())
         True
-        >>> os.unlink('test1.tar.gz')
+        >>> os.unlink('test1.assembly')
         """
-
-        archive = tarfile.open(name=path,mode='r:gz')
-
-        return GRCGenome.load_tarfile(archive)
-
+        return cls.load_archive(Archive(filepath=filename))
 
     @classmethod
-    def load_tarfile(cls,archive):
-        """Given an instance of tarfile.TarFile, load it as a ref. assembly."""
+    def load_archive(cls,archive):
+        """Load the given ``tigerlily.utility.archive.Archive`` object as a
+        reference genome assembly.
+        """
         sequences = []
 
-        for member in archive.getmembers():
-            fasta = FASTA(file=archive.extractfile(member))
+        for fasta_file in archive.getfasta():
+            fasta = FASTA(file=fasta_file)
             for seq in fasta:
                 sequences.append(seq)
         
