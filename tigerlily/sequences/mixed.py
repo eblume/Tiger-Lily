@@ -24,15 +24,15 @@ from tigerlily.sequences.sequence import PolymerSequenceGroup
 
 
 class MixedSequenceGroup(PolymerSequenceGroup):
-    r"""PolymerSequenceGroup that allows sequences of any type.
+    r"""``PolymerSequenceGroup`` that allows sequences of any type.
     
     What this gains in flexibility, it loses in representation. This
-    subclass of PolymerSequenceGroup does not have a .write() method, since
+    subclass of ``PolymerSequenceGroup`` does not have a .write() method, since
     there probably isn't a good way to represent the sequences it contains.
 
-    We also gain an add() method, which allows additional sequences to be
+    We also gain an ``add`` method, which allows additional sequences to be
     added to the sequence group after initialization - perhaps the key
-    benefit of a MixedSequenceGroup.
+    benefit of a ``MixedSequenceGroup``.
 
     >>> import tigerlily.sequences as tigseq
     >>> seq1 = tigseq.FASTASequence(sequence='aCGTAtagcATCA',identifier='seq1')

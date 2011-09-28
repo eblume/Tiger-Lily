@@ -37,7 +37,7 @@ class PolymerSequence(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __init__(self,sequence=None,identifier=None):
-        """All subclasses of PolymerSequence must have an initializer which
+        """All subclasses of ``PolymerSequence`` must have an initializer which
         accepts AT LEAST the keyword arguments 'sequence' and 'identifier'.
         Note that the contract requires that these arguments be supported
         if they are passed... it doesn't specify that there needs to be
