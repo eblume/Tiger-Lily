@@ -1,6 +1,8 @@
-Instructions for the creation of test assemblies
+Test Assemblies
+===============
 
-== CREATING A NEW TEST ASSEMBLY ==
+Creating a New Test Assembly
+----------------------------
 
 1. Think up a (new, unused) name for your test with no spaces that starts with
    the word 'test', like 'test1' or 'testfasta' or 'test_with_a_LONG_name'. We
@@ -39,7 +41,8 @@ STDIN and writes assembly archives to STDOUT, but please consider using the
 Makefile to avoid errors.
 
 
-== UPDATING AN EXISTING TEST ASSEMBLY ==
+Updating an Existing Test Assembly
+----------------------------------
 
 This process is very straightforward.
 
