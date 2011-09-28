@@ -39,8 +39,30 @@ class ConsoleDownloaderTests(unittest.TestCase):
     """
 
     def setUp(self):
-        """Create the testing environment"""
+        """archive.py: Create the testing environment"""
         self.test_dir = os.path.join(os.dirname(__file__),'test_archives')
+        self.assertTrue(os.path.isdir(self.test_dir))
+
+
+    def test_targz(self):
+        "archive.py: Test .tar.gz archive support"
+        pass
+
+    def test_tarbz2(self):
+        "archive.py: Test .tar.bz2 archive support"
+        pass
+
+    def test_tar(self):
+        "archive.py: Test .tar archive support"
+        pass
+
+    def test_zip(self):
+        "archive.py: Test .zip archive support"
+        pass
+
+    def test_equivalence(self):
+        "archive.py: Test equivalent archives in different formats match"
+        pass
 
     
         
