@@ -13,5 +13,3 @@
 # Ignore the setuptools build directories
 /build
 *.egg-info
-.coverage
-coverage*
