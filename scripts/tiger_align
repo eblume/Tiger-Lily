@@ -25,11 +25,84 @@
 import argparse
 import sys
 
+from tigerlily.index.fixedtree import FixedTree
 
 def main(args=sys.argv):
-    pass
+    print_banner()
+    options = parse_args(args)
+
+    index = FixedTree.load(options.index)
     
 
+    for read in sys.stdin:
+        read = read.strip()
+        alignmnets = index.alignments(read,
+            mismatches = options.mismatches,
+            maximum_alignments = options.max,
+            best_alignments = options.best,
+        )
+        for alignment in alignments:
+            print("{read}\t{chromosome}\t{position}\t{strand}".format(
+                read=read,
+                chromosome=alignment[0],
+                position=alignment[1],
+                strand= '+' if alignment[2] else '-',
+            ))
+
+    
+
+def print_banner():
+    """Print a few lines about the program - version, author, copyright, etc.
+    """
+    print("{scriptname} Copyright (C) 2011 Erich Blume\n"
+          "This program comes with ABSOLUTELY NO WARRANTY; see the Tiger Lily\n"
+          "project LICENSE file for more information." .format(
+          scriptname = sys.argv[0],
+         ))
+
+def parse_args(args):
+    parser = argparse.ArgumentParser(
+        description='Using an index, aline short reads given from STDIN',
+    )
+
+    parser.add_argument( 'index'
+        action='store',
+        type=str,
+        help='Path to a file containing a Tiger Lily FixedTree index.',
+    )
+
+    #### Options ####
+    
+    parser.add_argument( '--mismatches', '-m',
+        action='store',
+        type=int,
+        help='The number of mismatches allowed for each alignment.',
+        choices = range(5),
+        default = 0,
+    )
+
+    parser.add_argument( '--max',
+        action='store',
+        type=int,
+        help='The maximum number of alignments to allow for each alignment.',
+        default = None,
+    )
+
+    parser.add_argument( '--best',
+        action='store_true',
+        default = False,
+        help='Report only the best alignments.',
+    )
+
+    ### Parse ###
+    options = parser.parse_args(args=args)
+
+    ### Post-parsing work ###
+
+    if not os.path.isfile(options.index):
+        raise EnvironmentError('File {} does not exist'.format(options.index))
+
+    return options
 
 
 if __name__ == '__main__':
