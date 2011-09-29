@@ -20,37 +20,12 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import abc
 import os
 import tempfile
 
-from tigerlily.sequences import FASTA
+from tigerlily.sequences import FASTA, NucleicSequence
 from tigerlily.utility.download import ConsoleDownloader, make_filename
 from tigerlily.utility.archive import Archive
-
-class ReferenceGenome(metaclass=abc.ABCMeta):
-    """Abstract base class for all Genome objects.
-
-    ReferenceGenome objects represent an underlying file or data structure that
-    encodes a Reference Genome assembly (often called simply an 'assembly',
-    although in Tiger Lily they will normally use the full name Reference Genome
-    to help clarity).
-
-    ReferenceGenome objects convert such file structures in to sequence groups,
-    normally of the type tigerlily.sequences.MixedGroup, with the contained
-    sequences being tigerlily.sequences.NucleicSequence - one per each
-    assembly unit (nominally chromosomes, but often with other meta-units 
-    included), with the identifier set appropriately.
-    """
-    
-    @abc.abstractmethod
-    def sequences(self):
-        """Return a PolymerSequenceGroup representing this Genome.
-
-        Normally this will be a MixedSequenceGroup with NucleicSequence members.
-        """
-        raise NotImplementedError('attempt to call abstract method sequences()')
-
 
 SUPPORTED_ASSEMBLIES = {
     'hg19' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/'
@@ -74,7 +49,7 @@ SUPPORTED_ASSEMBLIES = {
 
 DEFAULT_ASSEMBLY = 'h19'
 
-class GRCGenome(ReferenceGenome):
+class GRCGenome:
     """Fetch, store, load, parse, and extract sequences from a GCR ref assembly
 
     NCBI has released many top-quality reference genomes. As of late 2010, these
@@ -104,20 +79,27 @@ class GRCGenome(ReferenceGenome):
         Do not call this method directly. Instead, call either
         GRCGenome.download or GRCGenome.load
         """
-        self._sequences = None
+        self._archive = None
     
     def sequences(self):
-        """Create a MixedSequenceGroup of the FASTA sequences from this ref.
+        """Generates each sequence in the genome as a FASTASequence
 
-        >>> from tigerlily.sequences import PolymerSequenceGroup
+        >>> from tigerlily.sequences import PolymerSequence
         >>> refgen = GRCGenome.download('test1')
-        >>> seqs = refgen.sequences()
-        >>> isinstance(seqs,PolymerSequenceGroup)
+        >>> for seq in refgen.sequences():
+        ...     isinstance(seq,PolymerSequence)
         True
-        >>> len(seqs)
-        3
+        True
+        True
         """
-        return self._sequences
+        if self._archive is None:
+            raise ValueError('Empty reference genome, no archive loaded')
+
+        for fasta_file in self._archive.getfasta():
+            fasta = FASTA(data=fasta_file.read().decode('utf-8'))
+            for seq in fasta:
+                yield seq
+            
 
     @classmethod
     def download(cls,name=DEFAULT_ASSEMBLY,store=False,silent=True):
@@ -194,7 +176,10 @@ class GRCGenome(ReferenceGenome):
         >>> os.path.isfile('test1.assembly')
         True
         >>> refgen2 = GRCGenome.load('test1.assembly')
-        >>> len(refgen2.sequences()) == len(refgen.sequences())
+        >>> for seq1,seq2 in zip(refgen.sequences(),refgen2.sequences()):
+        ...     seq1.sequence == seq2.sequence
+        True
+        True
         True
         >>> os.unlink('test1.assembly')
         """
@@ -205,15 +190,8 @@ class GRCGenome(ReferenceGenome):
         """Load the given ``tigerlily.utility.archive.Archive`` object as a
         reference genome assembly.
         """
-        sequences = []
-
-        for fasta_file in archive.getfasta():
-            fasta = FASTA(data=fasta_file.read().decode('utf-8'))
-            for seq in fasta:
-                sequences.append(seq)
-        
         newgrc = GRCGenome()
-        newgrc._sequences = FASTA.load_sequences(*sequences)
+        newgrc._archive = archive
         return newgrc
             
         
