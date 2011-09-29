@@ -114,6 +114,8 @@ class GRCGenome(ReferenceGenome):
         >>> seqs = refgen.sequences()
         >>> isinstance(seqs,PolymerSequenceGroup)
         True
+        >>> len(seqs)
+        3
         """
         return self._sequences
 
@@ -206,7 +208,7 @@ class GRCGenome(ReferenceGenome):
         sequences = []
 
         for fasta_file in archive.getfasta():
-            fasta = FASTA(file=fasta_file)
+            fasta = FASTA(data=fasta_file.read().decode('utf-8'))
             for seq in fasta:
                 sequences.append(seq)
         

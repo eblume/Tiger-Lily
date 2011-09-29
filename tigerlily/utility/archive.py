@@ -122,11 +122,13 @@ class Archive:
         if self.zipfile:
             for name in self.zipfile.namelist():
                 info = self.zipfile.getinfo(name)
-                if info.filename.endswith('.fasta'):
+                if (info.filename.endswith('.fasta') or
+                    info.filename.endswith('.fa')):
                     yield self.zipfile.open(name)
         else:
             for member in self.tarfile.getmembers():
-                if member.isfile() and member.name.endswith('.fasta'):
+                if member.isfile() and (member.name.endswith('.fasta') or
+                                        member.name.endswith('.fa')):
                     yield self.tarfile.extractfile(member)
 
     def getnofasta(self):
