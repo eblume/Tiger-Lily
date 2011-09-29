@@ -33,7 +33,8 @@ import tempfile
 import os
 import shutil
 
-from tigerlily.sequences import createNucleicSequenceGroup, NucleicSequence
+from tigerlily.sequences import NucleicSequence
+from tigerlily.grc.genome import GRCGenome
 import tigerlily.index.fixedtree as ft
 
 class FixedTreeTests(unittest.TestCase):
@@ -46,10 +47,7 @@ class FixedTreeTests(unittest.TestCase):
         self.orig_dir = os.getcwd()
         os.chdir(self.test_dir)
 
-        self.seq_grp = createNucleicSequenceGroup(
-            NucleicSequence('TGTACGTACTTACGCATTCAGGCAGTCA',identifier='seq1'),
-            NucleicSequence('GGACTTTACTGACACGTTACTGGG',identifier='seq2'),
-        )
+        self.test_genome = GRCGenome.download('test1')
     
         # Comment '^' shows an alignment for 'TTTTT' with 1 mismatch
         self.extra_seq = NucleicSequence('GGAACGTACTTATCGTCTGTCAGTACTTATTTAT'  
@@ -73,12 +71,12 @@ class FixedTreeTests(unittest.TestCase):
 
     def test_create_index(self):
         """fixedtree.py: Test tree creation from NucleicSequence group"""
-        index = ft.FixedTree(self.index_width,self.seq_grp)
+        index = ft.FixedTree(self.index_width,self.test_genome)
         self._search_index_subtest(index)
     
     def test_store_index(self):
         "fixedtree.py: Test writing FixedTree to disk"
-        index = ft.FixedTree(self.index_width,self.seq_grp)
+        index = ft.FixedTree(self.index_width,self.test_genome)
         index.store('test_save.idx')
         self.assertTrue(os.path.isfile('test_save.idx'))
         index2 = ft.FixedTree.load('test_save.idx')

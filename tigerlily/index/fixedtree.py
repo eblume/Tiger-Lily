@@ -30,15 +30,8 @@ from tigerlily.sequences import reverse_complement
 from tigerlily.utility import hamming_distance, greatest_common_prefix
 
 class FixedTree(GroupIndex):
-    def __init__(self, width, sequence_group=None, reverse=False):
+    def __init__(self, width, genome=None, reverse=False):
         """``FixedTree`` objects support alignment of fixed-width reads.
-
-        *sequence_group* may be any subclass of
-        ``tigerlily.sequences.PolymerSequenceGroup``,
-        although it will most usually
-        be a ``MixedSequenceGroup`` composed of ``NucleicSequence`` objects that
-        correspond to reference chromosomes. If left as ``None``, the index
-        will be created empty.
 
         *width* is the fixed width of reads that can be aligned to this index.
         It must be an integer and must be greater than 0, although for
@@ -47,19 +40,16 @@ class FixedTree(GroupIndex):
         is created, only reads that are exactly as long as *width* may be
         aligned.
 
+        If *genome* is set, it must be a member of
+        ``tigerlily.grc.genome.GRCGenome``. The index will load every sequence
+        in that genome. (You may omit this and then simply add sequences later.)
+
         If *reverse* is set to ``True``, then each input sequence's reverse
         complement is also processed. Alignments on these strands are reported
         with the same position and chromosome name, but with 'strand' as 
         ``False``.
         Note that the reported position of a reverse strand alignment will be
         the same position as the given sequence's reverse complement's position.
-
-        >>> from tigerlily.sequences import NucleicSequence
-        >>> from tigerlily.sequences import createNucleicSequenceGroup
-        >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
-        >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
-        >>> group = createNucleicSequenceGroup(s1,s2)
-        >>> index = FixedTree(5,sequence_group = group)
 
         Other than this function, you may also create a new ``FixedTree``
         object by using ``FixedTree.load()`` to load a stored index.
@@ -69,8 +59,8 @@ class FixedTree(GroupIndex):
         self.width = width
         self.sequence_name_table = {}
         
-        if sequence_group:
-            for sequence in sequence_group:
+        if genome:
+            for sequence in genome.sequences():
                 self.add_sequence(sequence, reverse)
 
     def store(self, filename):
@@ -124,15 +114,6 @@ class FixedTree(GroupIndex):
         subsequences of the length specified by this index.
 
         If reverse is True, each individual subsequence will also be reversed.
-
-        >>> from tigerlily.sequences import NucleicSequence
-        >>> from tigerlily.sequences import createNucleicSequenceGroup
-        >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
-        >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
-        >>> group = createNucleicSequenceGroup(s1,s2)
-        >>> index = FixedTree(5,sequence_group = group)
-        >>> seq = NucleicSequence('CCCCC')
-        >>> index.add_sequence(seq,False)
         """
         seq = sequence.sequence
         id = self._get_id(sequence.identifier)
@@ -168,24 +149,6 @@ class FixedTree(GroupIndex):
 
         The alignment is performed as if alignments() was called with all
         optional arguments left at their default.
-
-        >>> from tigerlily.sequences import NucleicSequence
-        >>> from tigerlily.sequences import createNucleicSequenceGroup
-        >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
-        >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
-        >>> group = createNucleicSequenceGroup(s1,s2)
-        >>> index = FixedTree(5,group)
-        >>> 'TACGT' in index
-        True
-        >>> 'ACGTA' in index # reverse compliment of the above
-        True
-        >>> 'GGGGG' in index
-        False
-        >>> 'TACTTAGCA' in index
-        Traceback (most recent call last):
-            ...
-        ValueError: aligned read is not the right width for this index
-
         """
         return len(self.alignments(sequence)) > 0
 
@@ -221,28 +184,6 @@ class FixedTree(GroupIndex):
 
         This will raise ValueError if the given sequence does not match the
         pre-specified width of the index.
-
-        >>> from tigerlily.sequences import NucleicSequence
-        >>> from tigerlily.sequences import createNucleicSequenceGroup
-        >>> seq = NucleicSequence('GGAATTCC',identifier='foo')
-        >>> seqgroup = createNucleicSequenceGroup(seq)
-        >>> index = FixedTree(2,seqgroup)
-        >>> index.alignments('GG')
-        [('foo', 0, True)]
-        
-        Note that for the next example with mismatches, the order of the result
-        is unspecified, so we will just wrap it with len() to avoid testing
-        errors. You don't need to wrap the result in len() in your own code.
-
-        >>> len(index.alignments('GG',mismatches=1))
-        2
-
-        For the next example we enable best_alignments, so the order is 
-        gaurunteed.        
-
-        >>> index.alignments('GG',mismatches=1,best_alignments=True)
-        [('foo', 0, True), ('foo', 1, True)]
-
         """
 
         if self.width != len(sequence):
