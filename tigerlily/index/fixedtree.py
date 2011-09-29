@@ -20,55 +20,102 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
+import struct
+import bz2
+import io
+
 from tigerlily.index.index import GroupIndex
 from tigerlily.sequences import reverse_complement
 from tigerlily.utility import hamming_distance, greatest_common_prefix
 
 class FixedTree(GroupIndex):
-    """GroupIndex wrapper which implements a Fixed-Width Substring Tree.
-    
-    The resulting tree supports alignments of a fixed width only. It supports
-    memory and time efficient lookups including mismatches. It does not support
-    gaps, indels, arbitrary width lookups, etc.
+    def __init__(self, width, sequence_group=None, reverse=False):
+        """``FixedTree`` objects support alignment of fixed-width reads.
 
-    As an example, the following block of code will create a MixedSequenceGroup
-    that we can index.
+        *sequence_group* may be any subclass of
+        ``tigerlily.sequences.PolymerSequenceGroup``,
+        although it will most usually
+        be a ``MixedSequenceGroup`` composed of ``NucleicSequence`` objects that
+        correspond to reference chromosomes. If left as ``None``, the index
+        will be created empty.
 
-    >>> from tigerlily.sequences import NucleicSequence
-    >>> from tigerlily.sequences import createNucleicSequenceGroup
-    >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
-    >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
-    >>> group = createNucleicSequenceGroup(s1,s2)
-    >>> index = FixedTree(group,5)
-
-    """
-
-    def __init__(self, sequence_group, width, reverse=False):
-        """Creates a FixedTree from the given sequence_group and fixed width.
-
-        sequence_group may be any subclass of
-        tigerlily.sequences.PolymerSequenceGroup, although it will most usually
-        be a MixedSequenceGroup composed of NucleicSequence objects that
-        correspond to reference chromosomes. 
-
-        width is an integer that must be greater than 0, although for reasonable
+        *width* is the fixed width of reads that can be aligned to this index.
+        It must be an integer and must be greater than 0, although for
+        reasonable
         performance it should also be greater than about 20. After this index
-        is created, only reads that are exactly as long as width may be aligned
+        is created, only reads that are exactly as long as *width* may be
+        aligned.
 
-        If reverse is set to True, then each input sequence's reverse
+        If *reverse* is set to ``True``, then each input sequence's reverse
         complement is also processed. Alignments on these strands are reported
-        with the same position and chromosome name, but with 'strand' as False.
+        with the same position and chromosome name, but with 'strand' as 
+        ``False``.
         Note that the reported position of a reverse strand alignment will be
         the same position as the given sequence's reverse complement's position.
 
-        See the documentation for the parent class for an example.
+        >>> from tigerlily.sequences import NucleicSequence
+        >>> from tigerlily.sequences import createNucleicSequenceGroup
+        >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
+        >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
+        >>> group = createNucleicSequenceGroup(s1,s2)
+        >>> index = FixedTree(5,sequence_group = group)
+
+        Other than this function, you may also create a new ``FixedTree``
+        object by using ``FixedTree.load()`` to load a stored index.
         """
 
         self.root = FixedTreeNode()
         self.width = width
+        self.sequence_name_table = {}
         
-        for sequence in sequence_group:
-            self.add_sequence(sequence, reverse)
+        if sequence_group:
+            for sequence in sequence_group:
+                self.add_sequence(sequence, reverse)
+
+    def store(self, filename):
+        """Save the FixedTree to the file named by *filename*.
+
+        If *filename* already exists, EnvironmentError will be raised.
+        """
+        if os.path.exists(filename):
+            raise EnvironmentError('File {} already exists.'.format(filename))
+
+        buffer = bz2.BZ2File(filename,mode='w')
+        buffer.write(struct.pack('<II',self.width,
+                                       len(self.sequence_name_table)))
+
+        for i in sorted(self.sequence_name_table.keys()):
+            ident = self.sequence_name_table[i]
+            buffer.write(struct.pack('<I',len(ident)))
+            buffer.write(struct.pack('<{}s'.format(len(ident)),
+                ident.encode('utf-8')))
+
+        self.root.store(buffer)
+
+    @classmethod
+    def load(cls, filename):
+        """Create a new FixedTree from the named file."""
+
+        buffer = bz2.BZ2File(filename)
+        
+        width, num_seqs = _unpack_buffer('<II',buffer)
+
+        newtree = FixedTree(width)
+        newtree.width=width
+        
+        newtree.sequence_name_table = {}
+        
+        for i in range(1,num_seqs+1):
+            (name_len,) = _unpack_buffer('<I',buffer)
+            (name,) = _unpack_buffer('<{}s'.format(name_len),buffer)
+            name = name.decode('utf-8')
+            newtree.sequence_name_table[i] = name
+
+        newtree.root = FixedTreeNode.load(buffer)
+
+        return newtree
+
 
     def add_sequence(self, sequence,reverse):
         """Add the given sequence to this index. 
@@ -83,23 +130,35 @@ class FixedTree(GroupIndex):
         >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
         >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
         >>> group = createNucleicSequenceGroup(s1,s2)
-        >>> index = FixedTree(group,5)
+        >>> index = FixedTree(5,sequence_group = group)
         >>> seq = NucleicSequence('CCCCC')
         >>> index.add_sequence(seq,False)
         """
         seq = sequence.sequence
+        id = self._get_id(sequence.identifier)
         for i in range(len(seq)-self.width+1):
             subseq = seq[i:i+self.width]
             # This loop will generate each overlapping subsequence
             # Keep in mind that in the common use case, this loop will be
             # executed as much as 250 million times. So, keep it light.
 
-            alignment = (sequence.identifier,i,True)
+            alignment = (id,i,True)
             self.root.insert(subseq,alignment)
 
             if reverse:
-                alignment = (sequence.identifier,i,False)
+                alignment = (id,i,False)
                 self.root.insert(reverse_complement(subseq),alignment)
+
+    def _get_id(self,identifier):
+        """Assign a unique integer to this identifier, to be shared amongst
+        all members claiming the same identifier."""
+        tab = self.sequence_name_table
+        val = 0
+        for val in tab:
+            if identifier == tab[val]:
+                return val
+        tab[val+1] = identifier
+        return val+1
 
     def __contains__(self, sequence):
         """Return true if, given the arguments, the sequence is in the index.
@@ -115,7 +174,7 @@ class FixedTree(GroupIndex):
         >>> s1 = NucleicSequence('ACGTACTTAGCATCATACGTCAGTACGCAGTCAGTCAGTCAT')
         >>> s2 = NucleicSequence('CGAGCGACGCAGTACGTACTGGCAGACGTGTATACCTGC')
         >>> group = createNucleicSequenceGroup(s1,s2)
-        >>> index = FixedTree(group,5)
+        >>> index = FixedTree(5,group)
         >>> 'TACGT' in index
         True
         >>> 'ACGTA' in index # reverse compliment of the above
@@ -167,7 +226,7 @@ class FixedTree(GroupIndex):
         >>> from tigerlily.sequences import createNucleicSequenceGroup
         >>> seq = NucleicSequence('GGAATTCC',identifier='foo')
         >>> seqgroup = createNucleicSequenceGroup(seq)
-        >>> index = FixedTree(seqgroup,2)
+        >>> index = FixedTree(2,seqgroup)
         >>> index.alignments('GG')
         [('foo', 0, True)]
         
@@ -204,7 +263,8 @@ class FixedTree(GroupIndex):
             alignments = alignments[:maximum_alignments]
 
         # Format the results for their final return
-        alignments = [(v[1],v[2],v[3]) for v in alignments]
+        alignments = [(self.sequence_name_table[v[1]],v[2],v[3])
+                      for v in alignments]
 
         # And we are done!
         return alignments
@@ -256,6 +316,46 @@ class FixedTreeNode:
 
         if alignment is not None:
             self._alignments.append(alignment)
+
+    def store(self,buffer):
+        """Copy this node in to *buffer*, and then recursively (but in a fixed
+        order) copy the children.
+        """
+
+        # save alignments
+        buffer.write(struct.pack('<I',len(self._alignments)))
+        for alignment in self._alignments:
+            buffer.write(struct.pack('<II?',*alignment))
+
+        # save edges
+        buffer.write(struct.pack('<I',len(self.edges)))
+        for label,node in self.edges.items():
+            length = len(label)
+            buffer.write(struct.pack('<I',length))
+            buffer.write(struct.pack('<{}s'.format(length),
+                                     label.encode('utf-8')))
+            node.store(buffer)
+
+    @classmethod
+    def load(cls,buffer):
+        """Return a new node by reading it from buffer, recursively"""
+        newnode = FixedTreeNode()        
+
+        # load alignments
+        (num_alignments,) = _unpack_buffer('<I',buffer)
+        for i in range(num_alignments):
+            alignment = _unpack_buffer('<II?',buffer)
+            newnode._alignments.append(alignment)
+
+        # load edges
+        (num_edges,) = _unpack_buffer('<I',buffer)
+        for i in range(num_edges):
+            (label_len,) = _unpack_buffer('<I',buffer)
+            (label,) = _unpack_buffer('<{}s'.format(label_len),buffer)
+            label = label.decode('utf-8')
+            newnode.edges[label] = FixedTreeNode.load(buffer)
+
+        return newnode
 
     def insert(self,sequence,alignment):
         # The goal is to create the maximum possible length edge without
@@ -341,4 +441,8 @@ class FixedTreeNode:
 
         return alignments
         
-
+def _unpack_buffer(format,buffer):
+    """Helper function that should be in stdlib to unpack from a file-like"""
+    this = struct.Struct(format)
+    return this.unpack(buffer.read(this.size))
+        
