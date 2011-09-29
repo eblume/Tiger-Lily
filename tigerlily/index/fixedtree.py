@@ -304,6 +304,7 @@ class FixedTreeNode:
 
         if not sequence:
             self._alignments.append(alignment)
+            return
 
         for edge_label in self.edges:
 
