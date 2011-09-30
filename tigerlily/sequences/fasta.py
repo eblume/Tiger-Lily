@@ -62,8 +62,7 @@ class FASTASequence(FormattedSequence):
             allowed_amino_chars + allowed_amino_chars.lower()))
 
         if not re.match(r'[{}]+'.format(all_allowed),sequence):
-            raise ValueError('FASTA sequence contains bad chars'
-                             .format(sequence))
+            raise ValueError('FASTA sequence contains bad chars')
 
         self._sequence = sequence
         self._identifier = identifier
