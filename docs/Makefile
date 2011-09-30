@@ -9,6 +9,8 @@ BUILDDIR      = _build
 GENERATED_SOURCES = srcdocs
 SRC_GEN       = sphinx-apidoc
 DOC_DEPTH     = 999
+API_HEADER    = "Tiger Lily API"
+SRC_OPS       = -d $(DOC_DEPTH) -H $(API_HEADER) -o $(GENERATED_SOURCES) 
 PACKAGES      = ../tigerlily
 
 # Internal variables.
@@ -63,7 +65,7 @@ tigerlily: latexpdf
 	@echo
 
 generate: clean
-	$(SRC_GEN) -o $(GENERATED_SOURCES) -d $(DOC_DEPTH) $(PACKAGES)
+	$(SRC_GEN) $(SRC_OPS) $(PACKAGES)
 	@echo 
 	@echo "Finished generating source code documentation templates"
 

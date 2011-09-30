@@ -3,7 +3,7 @@
 
 .. toctree::
 
-   sections/pre_source_sections
-   API <srcdocs/modules>
-   sections/post_source_sections
+   sections/preamble
+   sections/cookbook_index
+   Tiger Lily API <srcdocs/tigerlily>
 
