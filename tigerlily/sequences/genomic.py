@@ -52,6 +52,8 @@ class NucleicSequence(PolymerSequence):
     >>> nucleic = seq.convert(NucleicSequence)
     >>> nucleic.sequence
     'CTAGCATACTCACAGT'
+    >>> nucleic[1:3].sequence
+    'TA'
 
     An example showing that NucleicSequence objects can be instantiated
     directly.

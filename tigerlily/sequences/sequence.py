@@ -89,6 +89,15 @@ class PolymerSequence(metaclass=abc.ABCMeta):
         """
         return to_type(sequence=self.sequence,identifier=self.identifier)
 
+    def __getitem__(self,key):
+        """Slice handler for generic sequences.
+
+        Descendents may leave this in place or may override it to change the
+        default functionality.
+        """
+        return type(self)(sequence=self.sequence[key],
+                          identifier='{}_subseq'.format(self.identifier))
+
 
 class FormattedSequence(PolymerSequence,metaclass=abc.ABCMeta):
     """Abstract base class for PolymerSequence objects which can be formatted.
