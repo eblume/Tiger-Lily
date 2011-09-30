@@ -92,6 +92,12 @@ class Raw(sequence.PolymerSequenceGroup):
     >>> sequences = Raw(data=data)
     >>> len(sequences)
     4
+    >>> for seq in sequences:
+    ...     seq.identifier
+    'Seq_L2'
+    'Seq_L3'
+    'Seq_L4'
+    'Seq_L6'
 
     """
     
@@ -121,11 +127,16 @@ class Raw(sequence.PolymerSequenceGroup):
 
     def _load(self,data):
         self._sequences = []
+        line_num = 0
         for line in data.split('\n'):
+            line_num += 1
             line = line.rstrip()
             if not line:
                 continue
 
-            self._sequences.append(RawSequence(sequence=line))
+            self._sequences.append(RawSequence(sequence=line,
+                                               identifier='Seq_L{}'.format(
+                                                   line_num
+                                   )))
 
 
