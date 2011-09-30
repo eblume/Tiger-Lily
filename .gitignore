@@ -15,3 +15,5 @@
 *.egg-info
 .coverage
 
+# Ignore assembly files, they end up here sometimes
+*.assembly
