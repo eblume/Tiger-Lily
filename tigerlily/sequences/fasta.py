@@ -30,6 +30,8 @@ contain any comments (only a single identifier line is allowed), and that '>'
 is the only valid identifier character (not ';').
 """
 
+import re
+
 
 from tigerlily.sequences.sequence import FormattedSequence, PolymerSequenceGroup
 
@@ -51,6 +53,18 @@ class FASTASequence(FormattedSequence):
 
     def __init__(self,sequence,identifier):
         # Note that for FASTA, unlike other formats, an identifier is REQUIRED
+
+        # Check the sequence to make sure it conforms to NCBI-reduced
+        allowed_nucleic_chars = 'ATGCUN'
+        allowed_amino_chars = 'ACDEFGHIKLMNPQRSTVWYX*'
+        all_allowed = ''.join(set(
+            allowed_nucleic_chars + allowed_nucleic_chars.lower() + 
+            allowed_amino_chars + allowed_amino_chars.lower()))
+
+        if not re.match(r'[{}]+'.format(all_allowed),sequence):
+            raise ValueError('FASTA sequence contains bad chars'
+                             .format(sequence))
+
         self._sequence = sequence
         self._identifier = identifier
     
@@ -157,7 +171,7 @@ class FASTA(PolymerSequenceGroup):
         self._sequences = []
 
         if file:
-            data = file.read()
+            data = file.read().decode('utf-8')
 
         if data:
             self._load(data)
@@ -220,7 +234,6 @@ class FASTA(PolymerSequenceGroup):
             seq.write(file)
 
     def _load(self,data):
-
         if data[0] != '>':
             raise ValueError('Improperly formatted data')
 
