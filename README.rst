@@ -58,7 +58,7 @@ for pointers.
 RELEASE HISTORY
 ===============
 
-Wow, you're reading this before any releases have been made. Aren't you special!
+0.1.1 - 30 Sept 2011
 
 CONTRIBUTION
 ============
