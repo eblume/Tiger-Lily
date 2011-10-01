@@ -23,7 +23,7 @@
 import os
 import tempfile
 
-from tigerlily.sequences import FASTA, NucleicSequence
+from tigerlily.sequences import parseFASTA, NucleicSequence
 from tigerlily.utility.download import ConsoleDownloader, make_filename
 from tigerlily.utility.archive import Archive
 
@@ -96,8 +96,7 @@ class GRCGenome:
             raise ValueError('Empty reference genome, no archive loaded')
 
         for fasta_file in self._archive.getfasta():
-            fasta = FASTA(data=fasta_file.read().decode('utf-8'))
-            for seq in fasta:
+            for seq in  parseFASTA(file=fasta_file):
                 yield seq
             
 

@@ -32,7 +32,7 @@ import unittest
 import os
 
 import tigerlily.utility.archive as ar
-from tigerlily.sequences import FASTA
+from tigerlily.sequences import parseFASTA
 
 
 class ArchiveTests(unittest.TestCase):
@@ -81,8 +81,7 @@ class ArchiveTests(unittest.TestCase):
         # This isn't really a test of this unit, but it's a logical extension
         # and it would be bad if it failed, so let's do the test.
         for fasta_fileobj in arch.getfasta():
-            fasta = FASTA(fasta_fileobj)
-            for fasta_seq in fasta:
+            for fasta_seq in parseFASTA(fasta_fileobj):
                 self.assertTrue(len(fasta_seq.sequence) > 0)
                 self.assertTrue(fasta_seq.identifier.startswith('seq'))
     

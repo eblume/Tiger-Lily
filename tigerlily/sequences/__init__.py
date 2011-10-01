@@ -30,16 +30,13 @@ the sequence to some file format.
 """
 
 from tigerlily.sequences.sequence import ( PolymerSequence, FormattedSequence,
-    PolymerSequenceGroup, 
 )
 
-from tigerlily.sequences.fasta import ( FASTA, FASTASequence)
+from tigerlily.sequences.fasta import ( FASTASequence, parseFASTA, writeFASTA)
 
-from tigerlily.sequences.raw import ( RawSequence, Raw )
-
-from tigerlily.sequences.mixed import ( MixedSequenceGroup)
+from tigerlily.sequences.raw import ( RawSequence, parseRaw)
 
 from tigerlily.sequences.genomic import ( NucleicSequence, AminoSequence,
-    createNucleicSequenceGroup, reverse_complement,
+    reverse_complement,
 )
 

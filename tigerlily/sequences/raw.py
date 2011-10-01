@@ -74,7 +74,7 @@ class RawSequence(sequence.FormattedSequence):
     
 
 def parseRaw(file=None,data=None):
-    r"""Parse the given file or data to return a list of ``RawSequence`` objects
+    r"""Parse the given file or data to yield all ``RawSequence`` objects
 
     Either *file* or *data* must be set. *data* must be a ``str`` object and
     *file* must be a file-like object opened in non-binary mode (such that it
@@ -87,7 +87,7 @@ def parseRaw(file=None,data=None):
     ...         "\n"
     ...         "ACGTTGTTTTAGTCAGTC"
     ... )
-    >>> seqs = parseRaw(data=data)
+    >>> seqs = [s for s in parseRaw(data=data)]
     >>> len(seqs)
     4
     >>> seqs[1].identifier
@@ -99,7 +99,7 @@ def parseRaw(file=None,data=None):
     
     >>> from io import StringIO
     >>> data_f = StringIO(data)
-    >>> seqs_f = parseRaw(file=data_f)
+    >>> seqs_f = [s for s in parseRaw(file=data_f)]
     >>> for s1,s2 in zip(seqs,seqs_f):
     ...     s1.sequence == s2.sequence
     ...     s1.identifier == s2.identifier
@@ -119,7 +119,6 @@ def parseRaw(file=None,data=None):
     if file:
         data = file.read()
 
-    sequences = []
 
     line_num = 0
     for line in data.split('\n'):
@@ -127,8 +126,5 @@ def parseRaw(file=None,data=None):
         seq = line.rstrip()
         if not seq:
             continue
-        sequences.append(RawSequence(seq,identifier='RawSeq_Line{}'.format(
-                                                    line_num)))
+        yield RawSequence(seq,identifier='RawSeq_Line{}'.format(line_num))
 
-    return sequences
-        

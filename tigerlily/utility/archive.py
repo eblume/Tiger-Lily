@@ -119,17 +119,21 @@ class Archive:
         """Generate every member of the archive that looks like it is a
         FASTA file as a file-like object.
         """
+
         if self.zipfile:
             for name in self.zipfile.namelist():
                 info = self.zipfile.getinfo(name)
                 if (info.filename.endswith('.fasta') or
                     info.filename.endswith('.fa')):
-                    yield self.zipfile.open(name)
+                    filobj = self.zipfile.open(name)
+                    yield io.TextIOWrapper(filobj,encoding='utf-8')
         else:
             for member in self.tarfile.getmembers():
                 if member.isfile() and (member.name.endswith('.fasta') or
                                         member.name.endswith('.fa')):
-                    yield self.tarfile.extractfile(member)
+                    filobj = self.tarfile.extractfile(member)
+                    yield io.TextIOWrapper(filobj,encoding='utf-8')
+        
 
     def getnofasta(self):
         """Generate every member of the archive that does NOT look like it is a

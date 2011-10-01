@@ -28,9 +28,10 @@ is the only valid identifier character (not ';').
 """
 
 import re
+import textwrap
 
 
-from tigerlily.sequences.sequence import FormattedSequence, PolymerSequenceGroup
+from tigerlily.sequences.sequence import FormattedSequence
 
 class FASTASequence(FormattedSequence):
     r"""Container for a single FASTA Sequence.
@@ -47,7 +48,7 @@ class FASTASequence(FormattedSequence):
     ``FASTASequence`` sequences must use a subset of the NCBI specification.
     The sequence must only contain uppercase or lowercase variants of the
     characters in either ``FASTASequence.ALLOWED_NUCLEIC_CHARS`` or
-    ``FASTASequence.ALLOWD_AMINO_CHARS``. You can override the variables or
+    ``FASTASequence.ALLOWED_AMINO_CHARS``. You can override the variables or
     (preferably) subclass ``FASTASequence`` to allow different characters in
     the sequence (and you are encouraged to do so),
     but you then lose the gauruntee that the resulting
@@ -75,7 +76,7 @@ class FASTASequence(FormattedSequence):
         # Check the sequence to make sure it conforms to NCBI-reduced
         all_allowed = ''.join(set(
             self.ALLOWED_NUCLEIC_CHARS + self.ALLOWED_NUCLEIC_CHARS.lower() + 
-            self.ALLOWD_AMINO_CHARS + self.ALLOWD_AMINO_CHARS.lower()))
+            self.ALLOWED_AMINO_CHARS + self.ALLOWED_AMINO_CHARS.lower()))
 
         if not re.match(r'[{}]+'.format(all_allowed),sequence):
             raise ValueError('FASTA sequence contains bad chars')
@@ -104,10 +105,8 @@ class FASTASequence(FormattedSequence):
         # Instead, you may wish to use the FASTA-specific 'write' method.
         return ">{id}\n{seq}\n".format(
             id=self.identifier,
-            seq=['{}\n'.format(line) for line in textwrap.wrap(
-                                                    self.sequence,
-                                                    width=self.MAX_LINE_WIDTH,
-                                                 )]
+            seq = '\n'.join(textwrap.wrap(self.sequence,
+                                               width=self.MAX_LINE_WIDTH)),
         )
 
     def write(self,file):
@@ -134,7 +133,9 @@ class FASTASequence(FormattedSequence):
 
 
 def parseFASTA(file=None,data=None):
-    r"""Parse the given file or data and return a list of ``FASTASequence`` objs
+    r"""Parse the given file or data and return ``FASTASequence`` objects.
+
+    This function will generate each sequence in *file* or *data*.
 
     You must specify either *file* or *data* and not both. *data* must be a
     sequence of type ``str`` (and not ``bytes``). *file* can be any file-like
@@ -146,11 +147,11 @@ def parseFASTA(file=None,data=None):
     ... ">seq2\n"
     ... "TTAGGGACGTAATCGGACTCAGACGTTTTATGCGCGCGGCGCTTGGCGATATTAGGCGT\n"
     ... )
-    >>> seqs = parseFASTA(data=example_data)
+    >>> seqs = [s for s in parseFASTA(data=example_data)]
     >>> len(seqs)
     2
     >>> seqs[1].identifier
-    'seqs2'
+    'seq2'
     >>> seqs[0].sequence
     'CATTTACGGTACGTGATCTTACGATGCTAGCTTTGTACTAC'
     
@@ -158,7 +159,7 @@ def parseFASTA(file=None,data=None):
     
     >>> from io import StringIO
     >>> filewrap = StringIO(example_data)
-    >>> file_seqs = parseFASTA(file=filewrap)
+    >>> file_seqs = [s for s in parseFASTA(file=filewrap)]
     >>> len(file_seqs)
     2
 
@@ -181,17 +182,13 @@ def parseFASTA(file=None,data=None):
         data = file.read()
 
     if not data[0] == '>':
-        raise ValueError('Misformatted FASTA')
+        raise ValueError('Misformatted FASTA {}'.format(data))
 
-    sequences = []
-    
     for seq_data in data[1:].split('>'):
         all_lines = seq_data.split('\n')
         ident = all_lines[0]
-        seq = ''.join(seq_data[1:])
-        sequences.append(FASTASequence(sequence=seq,identifier=ident))
-
-    return sequences
+        seq = ''.join(all_lines[1:])
+        yield FASTASequence(sequence=seq,identifier=ident)
         
 
 def writeFASTA(file, *seqs):
@@ -200,13 +197,13 @@ def writeFASTA(file, *seqs):
     The sequences in *seqs* will be converted to ``FASTASequence`` objects
     first, and then printed using the ``write`` method.
 
+    The result is a valid FASTA-formatted file.
+
     >>> import sys
     >>> from tigerlily.sequences import NucleicSequence
     >>> writeFASTA(sys.stdout, NucleicSequence('ATTTCGAT'))
+    >Unknown
     ATTTCGAT
-
-    The result is a valid FASTA-formatted file.
-
     """
 
     for seq in seqs:
