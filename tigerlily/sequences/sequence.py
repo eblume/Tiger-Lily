@@ -152,22 +152,3 @@ class FormattedSequence(PolymerSequence,metaclass=abc.ABCMeta):
         raise NotImplementedError('Attempt to call abstract method `write`')
 
 
-
-class PolymerSequenceGroup(collections.Iterable,metaclass=abc.ABCMeta):
-    """Abstract base class for representing groups of genomic sequences.
-
-    This could be used for any purpose you like, but was originally intended
-    for use when the underlying format implies a grouping of PolymerSequence
-    objects, such as in the FASTA format.
-    """
-
-    @abc.abstractmethod
-    def __iter__(self):
-        "Return each PolymerSequence object contained wtihin this group in turn."
-        raise NotImplementedError('Attempt to call abstract method `__iter__`')
-
-    @abc.abstractmethod
-    def __len__(self):
-        """Return the number of PolymerSequence objects contained."""
-        raise NotImplementedError('Attempt to call abstract method `__len__`')
-
