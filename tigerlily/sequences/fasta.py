@@ -22,9 +22,6 @@
 
 """Support for the NCBI FASTA format.
 
-Only a subset of the NCBI specification for FASTA is supported. In particular,
-the sequences allowed in a NucleicSequence or an AminoSequence are allowed.
-
 This implementation honors the NCBI FASTA requirement that sequences not
 contain any comments (only a single identifier line is allowed), and that '>'
 is the only valid identifier character (not ';').
@@ -36,18 +33,39 @@ import re
 from tigerlily.sequences.sequence import FormattedSequence, PolymerSequenceGroup
 
 class FASTASequence(FormattedSequence):
-    """Container for a single FASTA Sequence.
+    r"""Container for a single FASTA Sequence.
 
-    Do not use this object. Instead, use the FASTA object, which subclasses
-    PolymerSequenceGroup. The FASTA format is intrinsically a set, so most of
-    the parsing logic is left in the FASTA object.
+    To parse a list of FASTA sequences out of a FASTA-formatted file, use
+    ``parseFASTA()`` from this module. To create a FASTA-formatted file
+    from a list of (any type of) sequence, use ``writeFASTA()``.
 
-    Nothing is *stopping* you from using this object, but you will probably
-    find that it doesn't do very much work for you.
+    You can also instantiate ``FASTASequence``
+    objects directly. There is often little
+    point in doing so, but it is an option available to you. Keep in mind
+    that ``FASTASequence`` objects *need* both a sequence and an identifier.
+
+    ``FASTASequence`` sequences must use a subset of the NCBI specification.
+    The sequence must only contain uppercase or lowercase variants of the
+    characters in either ``FASTASequence.ALLOWED_NUCLEIC_CHARS`` or
+    ``FASTASequence.ALLOWD_AMINO_CHARS``. You can override the variables or
+    (preferably) subclass ``FASTASequence`` to allow different characters in
+    the sequence (and you are encouraged to do so),
+    but you then lose the gauruntee that the resulting
+    sequence will always be NCBI-portable. Note that 'degenerate' sequences
+    and some other control or meta sequences are not supported in this
+    implementation even though the NCBI specification does allow them - this
+    is for interoperability with other Tiger Lily sequence classes.=
+
+    >>> seq1 = FASTASequence('TTAATTCTACTTATTTTATTA',identifier='seq1')
+    >>> seq1.format()
+    '>seq1\nTTAATTCTACTTATTTTATTA\n'
+    
     """
     
     # The FASTA format often specified a maximum line width. This is that.
     MAX_LINE_WIDTH = 79
+    ALLOWED_NUCLEIC_CHARS = 'ATGCUN'
+    ALLOWED_AMINO_CHARS = 'ACDEFGHIKLMNPQRSTVWYX*'
 
     # Required functions
 
@@ -55,11 +73,9 @@ class FASTASequence(FormattedSequence):
         # Note that for FASTA, unlike other formats, an identifier is REQUIRED
 
         # Check the sequence to make sure it conforms to NCBI-reduced
-        allowed_nucleic_chars = 'ATGCUN'
-        allowed_amino_chars = 'ACDEFGHIKLMNPQRSTVWYX*'
         all_allowed = ''.join(set(
-            allowed_nucleic_chars + allowed_nucleic_chars.lower() + 
-            allowed_amino_chars + allowed_amino_chars.lower()))
+            self.ALLOWED_NUCLEIC_CHARS + self.ALLOWED_NUCLEIC_CHARS.lower() + 
+            self.ALLOWD_AMINO_CHARS + self.ALLOWD_AMINO_CHARS.lower()))
 
         if not re.match(r'[{}]+'.format(all_allowed),sequence):
             raise ValueError('FASTA sequence contains bad chars')
@@ -86,7 +102,7 @@ class FASTASequence(FormattedSequence):
         # Note that FASTA sequences are often times megabases-long. These
         # sequences will perform poorly in generating a single string.
         # Instead, you may wish to use the FASTA-specific 'write' method.
-        return ">{id}\n{seq}".format(
+        return ">{id}\n{seq}\n".format(
             id=self.identifier,
             seq=['{}\n'.format(line) for line in textwrap.wrap(
                                                     self.sequence,
@@ -117,129 +133,84 @@ class FASTASequence(FormattedSequence):
             file.write('{}\n'.format(seq[i:i+self.MAX_LINE_WIDTH]))
 
 
+def parseFASTA(file=None,data=None):
+    r"""Parse the given file or data and return a list of ``FASTASequence`` objs
 
-class FASTA(PolymerSequenceGroup):
-    def __init__(self,file=None,data=None):
-        r"""Load a FASTA set either from the given source.
+    You must specify either *file* or *data* and not both. *data* must be a
+    sequence of type ``str`` (and not ``bytes``). *file* can be any file-like
+    object opened for reading in non-binary mode (such that ``file.read()`` will
+    produce ``str`` objects).
 
-        *file* may point to a file-like object from which the source data will
-        be read. *data* may point to a ``str`` in which the same will be done.
-
-        If both *file* and *data* are set, ValueError will be raised. You may
-        create an empty ``FASTA`` object if you like by specifying neither.
-
-        Note that this formatter uses the NCBI definition of the FASTA format,
-        which you can find at this URL:
-            http://blast.ncbi.nlm.nih.gov/blastcgihelp.shtml
-        However, no checking is done to make sure that the sequence is composed
-        of valid bases - that's between you and your end use case.
-
-        Importantly, the NCBI definition does not allow for comments and
-        mandates '>' as the decleration row's prefix, which is honored here.
-
-        Example:
-
-        >>> data = ">seq1\nLCLYTHGIGRN\n>seq2\nVALAGVHLTFLHETGSNN"
-        >>> seqs = FASTA(data=data)
-        >>> len(seqs)
-        2
-
-        We can then iterate over the ``FASTASequence`` sequences in this group:
-
-        >>> for seq in seqs:
-        ...     isinstance(seq,FASTASequence)
-        ...     seq.identifier,seq.sequence
-        ...
-        True
-        ('seq1', 'LCLYTHGIGRN')
-        True
-        ('seq2', 'VALAGVHLTFLHETGSNN')
-
-        Here is some proof that the various inheritance schemes are working:
-
-        >>> isinstance(seqs,FASTA)
-        True
-        >>> isinstance(seqs,PolymerSequenceGroup)
-        True
-        >>> issubclass(FASTA,PolymerSequenceGroup)
-        True
-        """
-        if file and data:
-            raise ValueError('Only specify file or data, not both')
-
-        self._sequences = []
-
-        if file:
-            data = file.read().decode('utf-8')
-
-        if data:
-            self._load(data)
-
-    @classmethod
-    def load_sequences(cls,*sequences):
-        """Create a new FASTA object from a list of arbitrary sequences.
-
-        >>> from tigerlily.sequences import RawSequence,NucleicSequence
-        >>> seq1 = RawSequence('AACGGTTACGATCAGGACTACGGGAGGAGAGA')
-        >>> seq2 = NucleicSequence('ACGGACTTACCAGGACTACGGACTCAGACG')
-        >>> fasta = FASTA.load_sequences(seq1,seq2)
-        >>> len(fasta)
-        2
-        """
-        newfasta = FASTA()
-        for seq in sequences:
-            newfasta._sequences.append(seq.convert(FASTASequence))
-        return newfasta
-
-    def __iter__(self):
-        for seq in self._sequences:
-            yield seq
-
-    def __len__(self):
-        return len(self._sequences)
-
-    def write(self,file):
-        """Write this FASTA group to a file, producing a conforming FASTA file.
-
-        >>> data = r'''>SEQUENCE_1
-        ... MTEITAAMVKELRESTGAGMMDCKNALSETNGDFDKAVQLLREKGLGKAAKKADRLAAEG
-        ... LVSVKVSDDFTIAAMRPSYLSYEDLDMTFVENEYKALVAELEKENEERRRLKDPNKPEHK
-        ... IPQFASRKQLSDAILKEAEEKIKEELKAQGKPEKIWDNIIPGKMNSFIADNSQLDSKLTL
-        ... MGQFYVMDDKKTVEQVIAEKEKEFGGKIKIVEFICFEVGEGLEKKTEDFAAEVAAQL
-        ... >SEQUENCE_2
-        ... SATVSEINSETDFVAKNDQFIALTKDTTAHIQSNSLQSVEELHSSTINGVKFEEYLKSQI
-        ... ATIGENLVVRRFATLKAGANGVVNGYIHTNGRVGVVIAAACDSAEVASKSRDLLRQICMH
-        ... '''
-        
-        We could use the file-based loading initializer for FASTA, but let's
-        just leave it as a string for simplicity.
-
-        >>> seqs = FASTA(data=data)
-        >>> len(seqs)
-        2
-        
-        Now we write the sequences out to a buffer.
-
-        >>> import io
-        >>> buffer = io.StringIO()
-        >>> seqs.write(buffer)
+    >>> example_data = (">seq1\n"
+    ... "CATTTACGGTACGTGATCTTACGATGCTAGCTTTGTACTAC\n"
+    ... ">seq2\n"
+    ... "TTAGGGACGTAATCGGACTCAGACGTTTTATGCGCGCGGCGCTTGGCGATATTAGGCGT\n"
+    ... )
+    >>> seqs = parseFASTA(data=example_data)
+    >>> len(seqs)
+    2
+    >>> seqs[1].identifier
+    'seqs2'
+    >>> seqs[0].sequence
+    'CATTTACGGTACGTGATCTTACGATGCTAGCTTTGTACTAC'
     
-        You'll just have to trust that the output is consistent, and that
-        it only differs from data in terms of superficial formatting.
+    And then, as a file-object:
+    
+    >>> from io import StringIO
+    >>> filewrap = StringIO(example_data)
+    >>> file_seqs = parseFASTA(file=filewrap)
+    >>> len(file_seqs)
+    2
 
-        """
+    The results are equivalent:
+    
+    >>> for s1,s2 in zip(seqs,file_seqs):
+    ...     s1.sequence == s2.sequence
+    ...     s1.identifier == s2.identifier
+    True
+    True
+    True
+    True
 
-        for seq in self:
-            seq.write(file)
+    """
 
-    def _load(self,data):
-        if data[0] != '>':
-            raise ValueError('Improperly formatted data')
+    if (file and data) or (not file and not data):
+        raise ValueError('You must specify either file or data, but not both')
+        
+    if file:
+        data = file.read()
 
-        for entry in data[1:].split('>'):
-            all_lines = entry.split('\n')
-            ident = all_lines[0]
-            seq = ''.join(all_lines[1:])
-            self._sequences.append(FASTASequence(sequence=seq,identifier=ident))
+    if not data[0] == '>':
+        raise ValueError('Misformatted FASTA')
+
+    sequences = []
+    
+    for seq_data in data[1:].split('>'):
+        all_lines = seq_data.split('\n')
+        ident = all_lines[0]
+        seq = ''.join(seq_data[1:])
+        sequences.append(FASTASequence(sequence=seq,identifier=ident))
+
+    return sequences
+        
+
+def writeFASTA(file, *seqs):
+    """Write an arbitray amount of sequences to an open writable file object.
+
+    The sequences in *seqs* will be converted to ``FASTASequence`` objects
+    first, and then printed using the ``write`` method.
+
+    >>> import sys
+    >>> from tigerlily.sequences import NucleicSequence
+    >>> writeFASTA(sys.stdout, NucleicSequence('ATTTCGAT'))
+    ATTTCGAT
+
+    The result is a valid FASTA-formatted file.
+
+    """
+
+    for seq in seqs:
+        seq.convert(FASTASequence).write(file)
+    # Yup. That simple.
             
         

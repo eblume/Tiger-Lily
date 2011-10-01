@@ -24,7 +24,6 @@ import re
 import string
 
 from tigerlily.sequences.sequence import PolymerSequence
-from tigerlily.sequences.mixed import MixedSequenceGroup
 from tigerlily.utility import *
 
 
@@ -296,31 +295,6 @@ def reverse_complement(sequence):
     'ACGGTC'
     """
     return sequence[::-1].translate(COMPLEMENT_TRANS)
-
-def createNucleicSequenceGroup(*sequences):
-    r"""Convert any group of sequences in to a nucleic MixedSequence group.
-
-    >>> from tigerlily.sequences.raw import Raw
-    >>> sequences = Raw(data='AGTACGTATTTCAT\nTTCATACGACTAC\n')
-    >>> len(sequences)
-    2
-    >>> nucleic = createNucleicSequenceGroup(*[s for s in sequences])
-    >>> len(nucleic)
-    2
-    >>> for seq in nucleic:
-    ...     isinstance(seq,NucleicSequence)
-    ...
-    True
-    True
-
-    """
-
-    new_group = MixedSequenceGroup()
-    
-    for sequence in sequences:
-        new_group.add(sequence.convert(NucleicSequence))
-
-    return new_group
 
 def _translations(sequence):
     """Recursively return generate all possible translations of the amino seq.

@@ -20,13 +20,14 @@
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""Support for sequences that don't fit any other format, or have none."""
+
 from tigerlily.sequences import sequence
 
 class RawSequence(sequence.FormattedSequence):
-    """Container for a 'raw' sequence.
-
-    Since raw reads are essentially just a sequence, this is a fairly useless
-    class. It is more or less just a holder for the Raw sequence group object.
+    """Container for a 'raw' sequence. This is just a bare sequence without
+    any other syntactic or semantic requirement or information. That makes this
+    class useful for handling sequences that don't fit in any other class.
 
     >>> seq = RawSequence(sequence='ATCGCGAGTCAGTCAGCATGACTACGCACAGTAC')
     
@@ -72,71 +73,62 @@ class RawSequence(sequence.FormattedSequence):
         file.write(self._format())
     
 
-class Raw(sequence.PolymerSequenceGroup):
-    """Container for a set of raw (unformatted) sequences, one per line.
+def parseRaw(file=None,data=None):
+    r"""Parse the given file or data to return a list of ``RawSequence`` objects
 
-    Use this object to parse data that stores sequences one per line without
-    any additional formatting or information beyond the read and a newline
-    character for each read (except possibly the last one).
+    Either *file* or *data* must be set. *data* must be a ``str`` object and
+    *file* must be a file-like object opened in non-binary mode (such that it
+    returns ``str`` objects when ``.read()`` is called.)
 
-    Additionally, blank lines are skipped without an error (even if they 
-    contain white space characters).
-
-    >>> data = r'''
-    ... CGTATACGCTCAGTC
-    ... CGGGGCATCAGACTA
-    ... CACGTACGACTACGTACGACTGACTGACTGCATCACATG
-    ... 
-    ... LAGVVGALVUIALKT
-    ... '''
-    >>> sequences = Raw(data=data)
-    >>> len(sequences)
+    >>> data = ("TGATCGCAGTCAG\n"
+    ...         "ATATCGTA\n"
+    ...         "\n"
+    ...         "TTGATTAGCTAGTCGACGAT\n"
+    ...         "\n"
+    ...         "ACGTTGTTTTAGTCAGTC"
+    ... )
+    >>> seqs = parseRaw(data=data)
+    >>> len(seqs)
     4
-    >>> for seq in sequences:
-    ...     seq.identifier
-    'Seq_L2'
-    'Seq_L3'
-    'Seq_L4'
-    'Seq_L6'
+    >>> seqs[1].identifier
+    'RawSeq_Line2'
+    >>> seqs[2].identifier
+    'RawSeq_Line4'
+
+    And the equivalent using file-based objects:
+    
+    >>> from io import StringIO
+    >>> data_f = StringIO(data)
+    >>> seqs_f = parseRaw(file=data_f)
+    >>> for s1,s2 in zip(seqs,seqs_f):
+    ...     s1.sequence == s2.sequence
+    ...     s1.identifier == s2.identifier
+    True
+    True
+    True
+    True
+    True
+    True
+    True
+    True
 
     """
-    
-    def __init__(self,file=None,data=None):
-        if file and data:
-            raise ValueError('Only specify file or data, not both')
+    if (file and data) or (not file and not data):
+        raise ValueError('Specify either file or data, and not both')
 
-        if not file and not data:
-            raise ValueError('You must specify file or data, but not both.')
+    if file:
+        data = file.read()
 
-        if file:
-            data = file.read()
+    sequences = []
 
-        self._load(data)
+    line_num = 0
+    for line in data.split('\n'):
+        line_num += 1
+        seq = line.rstrip()
+        if not seq:
+            continue
+        sequences.append(RawSequence(seq,identifier='RawSeq_Line{}'.format(
+                                                    line_num)))
 
-
-    def __iter__(self):
-        for seq in self._sequences:
-            yield seq
-
-    def __len__(self):
-        return len(self._sequences)
-
-    def write(self,file):
-        for seq in self:
-            seq.write(file)
-
-    def _load(self,data):
-        self._sequences = []
-        line_num = 0
-        for line in data.split('\n'):
-            line_num += 1
-            line = line.rstrip()
-            if not line:
-                continue
-
-            self._sequences.append(RawSequence(sequence=line,
-                                               identifier='Seq_L{}'.format(
-                                                   line_num
-                                   )))
-
-
+    return sequences
+        
