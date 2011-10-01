@@ -24,10 +24,9 @@ Creating Sequences
 For this example, lets pretend we have a *flat* text file of sequences. In other
 words, we have a text file which has one sequence per line, with nothing else
 at all in the file (except possibly empty lines). In Tiger Lily terms, this is
-called a Raw File, and it is supported with the classes in
-``tigerlily.sequences.raw``, namely ``tigerlily.sequences.Raw`` and 
-``tigerlily.sequences.RawSequence`` (which are shortcuts to classes by the same
-name inside of the raw module).
+called a Raw File, and it is supported with the classes and functions in
+``tigerlily.sequences.raw``, namely ``Raw`` and ``parseRaw``, a class and a 
+function respectively.
 
 First, lets create a 'fake' file using the multi-line string syntax of Python.
 
@@ -45,19 +44,10 @@ we are using only A, T, G, and C so that we can convert these reads in to
 
 Next, let's read these sequences in.
 
->>> from tigerlily.sequences import Raw
->>> sequences = Raw(data=raw_reads)
->>> len(sequences)
+>>> from tigerlily.sequences import parseRaw
+>>> seqs = [s for s in parseRaw(data=raw_reads)]
+>>> len(seqs)
 5
-
-**Important Note: This section will be changing in 0.2.** In particular, all
-descendents of the ``tigerlily.sequences.PolymerSequenceGroup`` class will be
-removed, which will make accessing individual sequences much easier.
-
-Now that we have a ``Raw`` sequence group object, let's pull each sequence out
-in to a list so that we can access the sequences directly.
-
->>> seqs = [s for s in sequences]
 
 We can access the ``sequence`` attribute of each ``RawSequence`` object in the
 list thusly:
@@ -69,9 +59,9 @@ Additionally, the ``Raw`` class pre-loaded each sequence with an ``identifier``
 attribute by using the line number of each sequence.
 
 >>> seqs[2].identifier
-'Seq_L3'
+'RawSeq_Line3'
 >>> seqs[3].identifier
-'Seq_L4'
+'RawSeq_Line4'
 
 
 Converting Sequences
@@ -151,9 +141,33 @@ object.*
 Writing in Another Format
 -------------------------
 
-*Coming soon in Tiger Lily 0.2*
+Let's say we want to take the original raw sequences we created earlier (in
+``seqs``) and write them in the FASTA file format. But that's not all - we first
+want to find each of their reverse complements. You guessed it - all very
+simple!
 
-(There is currently a limitation in the design of the FASTA file format that
-makes it hard to write sequences from another format in FASTA. This will be
-fixed in 0.2)
+First a little bit of setup: 
+
+>>> from tigerlily.sequences import writeFASTA
+>>> from io import StringIO
+>>> output = StringIO()
+
+And now the business end of the operation:
+
+>>> conv_seqs=[s.convert(NucleicSequence).reverse_complement() for s in seqs]
+>>> writeFASTA(output,*conv_seqs)
+
+If you examine the output, you should see:
+
+>>> print(output.getvalue())
+>RawSeq_Line1
+GTACTGGACTCAGTCACAAAGCCATG
+>RawSeq_Line2
+GTCGATAATAGCTACGATCGAATAATCCAAGT
+>RawSeq_Line3
+AGTCATGCGCCCCGCTATAATAATAATAACAATCAGCTAGCTAGCATCGTCTCCTCCTCCCTAAATGTG
+>RawSeq_Line4
+CGTAGTCGTATCGTTTTTTTTTTTCTCTT
+>RawSeq_Line5
+TGATGATGAAATGTGTGGTTTTGGCTAGCGTACGCTAGCCGT
 
