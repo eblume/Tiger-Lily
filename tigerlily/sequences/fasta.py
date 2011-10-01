@@ -118,8 +118,8 @@ class FASTASequence(FormattedSequence):
         because this function doesn't store the entire sequence in memory a
         second time like .format() does (for text wrapping purposes).
         
-        *: *OK, the performance will be mostly identical, it's just that the
-           memory footprint should be much smaller.*
+        *: OK, the performance will be mostly identical, it's just that the
+           memory footprint should be much smaller.
         """
     
         seq = self.sequence
