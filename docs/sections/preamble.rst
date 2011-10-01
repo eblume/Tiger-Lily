@@ -4,5 +4,4 @@ Overview
 .. toctree::
 
     about
-    examples
 
