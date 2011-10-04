@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Tiger Lily.  If not, see <http://www.gnu.org/licenses/>.
 #
-
+import hashlib
 import os
 import tempfile
 
@@ -28,23 +28,24 @@ from tigerlily.utility.download import ConsoleDownloader, make_filename
 from tigerlily.utility.archive import Archive
 
 SUPPORTED_ASSEMBLIES = {
-    'hg19' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/'
-             'chromFa.tar.gz',
-    'hg18' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg18/bigZips/'
-             'chromFa.zip',
-    'hg17' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg17/bigZips/'
-             'chromFa.zip',
-    'hg16' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg16/bigZips/'
-             'chromFa.zip',
-    'hg15' : 'http://hgdownload.cse.ucsc.edu/goldenPath/hg15/bigZips/'
-             'chromFa.zip',
-    'test1': 'file://{}'.format(
+    #format: (url, md5 hashcode)
+    'hg19' : ('http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/'
+             'chromFa.tar.gz', 'ec3c974949f87e6c88795c17985141d3'),
+    'hg18' : ('http://hgdownload.cse.ucsc.edu/goldenPath/hg18/bigZips/'
+             'chromFa.zip', '7fc7f751134f3800f646118e39f9991d'),
+    'hg17' : ('http://hgdownload.cse.ucsc.edu/goldenPath/hg17/bigZips/'
+             'chromFa.zip', None),
+    'hg16' : ('http://hgdownload.cse.ucsc.edu/goldenPath/hg16/bigZips/'
+             'chromFa.zip', None),
+    'hg15' : ('http://hgdownload.cse.ucsc.edu/goldenPath/hg15/bigZips/'
+             'chromFa.zip', None),
+    'test1': ('file://{}'.format(
                 os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
                     'test_assemblies',
                     'test1.tar.gz'),
-             ),
-    'test_biopython': 'http://biopython.org/DIST/biopython-1.58.tar.gz',
+             ), '58795cc5f72ffacf5c403a13da1d59e9'),
+    'test_biopython': ('http://biopython.org/DIST/biopython-1.58.tar.gz', None),
 }
 
 DEFAULT_ASSEMBLY = 'h19'
@@ -162,9 +163,18 @@ class GRCGenome:
             temp = tempfile.NamedTemporaryFile()
             filename = temp.name
             
-        client.retrieve(url, filename=filename, silent=silent)
-
-        return GRCGenome.load_archive(Archive(filepath=filename))
+        client.retrieve(url[0], filename=filename, silent=silent)
+        if url[1] != None:
+            infile = open(filename,'rb')
+            content = infile.read()
+            infile.close()
+            md5 = hashlib.md5(content).hexdigest()
+            if md5 == url[1]:
+                return GRCGenome.load_archive(Archive(filepath=filename))
+            else:
+                return GRCGenome.download(name,store,silent)
+        else:
+            return GRCGenome.load_archive(Archive(filepath=filename))
         
     @classmethod
     def load(cls,filename):
