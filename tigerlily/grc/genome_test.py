@@ -51,25 +51,24 @@ class GRCGenomeTester(unittest.TestCase):
         """Remove the testing environment"""
         os.chdir(self.orig_dir)
         shutil.rmtree(self.test_dir)
-    
 
-   def test_NoDigest_NoRetry(self):
+    def test_NoDigest_NoRetry(self):
         """genome.py: Test local genome 'download', no digest no retry"""
         gen = gg.GRCGenome.download('test_nodigest', store=True)
         self.assertTrue(os.path.isfile('test_nodigest.assembly'))
 
-   def test_GoodDigest_NoRetry(self):
+    def test_GoodDigest_NoRetry(self):
         """genome.py: Test local genome 'download', good digest no retry"""
         gen = gg.GRCGenome.download('test_digest', store=True)
         self.assertTrue(os.path.isfile('test_digest.assembly'))
 
-   def test_BadDigest_NoRetry(self):
+    def test_BadDigest_NoRetry(self):
         """genome.py: Test local genome 'download', bad digest no retry"""
         with self.assertRaises(EnvironmentError):
             gen = gg.GRCGenome.download('test_baddigest', store=True)
         self.assertFalse(os.path.isfile('test_baddigest.assembly'))
 
-   def test_GoodDigest_FourRetry(self):
+    def test_GoodDigest_FourRetry(self):
         """genome.py: Test local genome 'download', good digest 4 retry"""
         # Note that we wouldn't expect the retries to make a difference since
         # a local file download shouldn't ever fail digest verification, but
@@ -77,7 +76,7 @@ class GRCGenomeTester(unittest.TestCase):
         gen = gg.GRCGenome.download('test_digest', store=True, retries=4)
         self.assertTrue(os.path.isfile('test_digest.assembly'))
 
-   def test_BadDigest_FourRetry(self):
+    def test_BadDigest_FourRetry(self):
         """genome.py: Test local genome 'download', bad digest 4 retry"""
         with self.assertRaises(EnvironmentError):
             gen = gg.GRCGenome.download('test_baddigest', store=True, retries=4)

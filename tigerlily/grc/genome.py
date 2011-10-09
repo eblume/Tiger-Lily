@@ -52,7 +52,7 @@ SUPPORTED_ASSEMBLIES = {
 
     ## Test assemblies (they may be used in production - but probably aren't
     ## very useful!
-    'test1': (_get_local_assembly('test1', '58795cc5f72ffacf5c403a13da1d59e9'),
+    'test1': (_get_local_assembly('test1'), '58795cc5f72ffacf5c403a13da1d59e9'),
     'test_biopython': ('http://biopython.org/DIST/biopython-1.58.tar.gz', None),
     'test_nodigest': (_get_local_assembly('test1'),None),
     'test_digest': (_get_local_assembly('test1'),
