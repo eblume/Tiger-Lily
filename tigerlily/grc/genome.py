@@ -27,8 +27,18 @@ from tigerlily.sequences import parseFASTA, NucleicSequence
 from tigerlily.utility.download import ConsoleDownloader, make_filename
 from tigerlily.utility.archive import Archive
 
+# Helper function for local test genome builds
+def _get_local_assembly(name):
+    return 'file://{}'.format(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'test_assemblies',
+        '{}.tar.gz'.format(name)
+    ))
+
 SUPPORTED_ASSEMBLIES = {
     #format: (url, md5 hashcode)
+
+    ## UCSC Genome Browser assemblies
     'hg19' : ('http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/'
              'chromFa.tar.gz', 'ec3c974949f87e6c88795c17985141d3'),
     'hg18' : ('http://hgdownload.cse.ucsc.edu/goldenPath/hg18/bigZips/'
@@ -39,13 +49,16 @@ SUPPORTED_ASSEMBLIES = {
              'chromFa.zip', None),
     'hg15' : ('http://hgdownload.cse.ucsc.edu/goldenPath/hg15/bigZips/'
              'chromFa.zip', None),
-    'test1': ('file://{}'.format(
-                os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    'test_assemblies',
-                    'test1.tar.gz'),
-             ), '58795cc5f72ffacf5c403a13da1d59e9'),
+
+    ## Test assemblies (they may be used in production - but probably aren't
+    ## very useful!
+    'test1': (_get_local_assembly('test1', '58795cc5f72ffacf5c403a13da1d59e9'),
     'test_biopython': ('http://biopython.org/DIST/biopython-1.58.tar.gz', None),
+    'test_nodigest': (_get_local_assembly('test1'),None),
+    'test_digest': (_get_local_assembly('test1'),
+                    '58795cc5f72ffacf5c403a13da1d59e9'),
+    'test_baddigest': (_get_local_assembly('test1'),
+                       'ffffffffffffffffffffffffffffffff')
 }
 
 DEFAULT_ASSEMBLY = 'h19'
