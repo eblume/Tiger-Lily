@@ -50,5 +50,25 @@ class GRCGenomeTester(unittest.TestCase):
         os.chdir(self.orig_dir)
         shutil.rmtree(self.test_dir)
     
+
+   def test_NoDigest_NoRetry(self):
+        """genome.py: Test local genome 'download', no digest no retry"""
+        pass
+
+   def test_GoodDigest_NoRetry(self):
+        """genome.py: Test local genome 'download', good digest no retry"""
+        pass
+
+   def test_BadDigest_NoRetry(self):
+        """genome.py: Test local genome 'download', bad digest no retry"""
+        pass
+
+   def test_GoodDigest_FourRetry(self):
+        """genome.py: Test local genome 'download', good digest 4 retry"""
+        pass
+
+   def test_BadDigest_FourRetry(self):
+        """genome.py: Test local genome 'download', bad digest 4 retry"""
+        pass
         
         
