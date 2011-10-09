@@ -37,6 +37,8 @@ import tigerlily.grc.genome as gg
 
 class GRCGenomeTester(unittest.TestCase):
     """Test harness for ``tigerlily.grc.genome.GRCGenome`` class.
+
+    At this time, the tests specifically target downloaded genomes.
     """
 
     def setUp(self):
@@ -53,22 +55,32 @@ class GRCGenomeTester(unittest.TestCase):
 
    def test_NoDigest_NoRetry(self):
         """genome.py: Test local genome 'download', no digest no retry"""
-        pass
+        gen = gg.GRCGenome.download('test_nodigest', store=True)
+        self.assertTrue(os.path.isfile('test_nodigest.assembly'))
 
    def test_GoodDigest_NoRetry(self):
         """genome.py: Test local genome 'download', good digest no retry"""
-        pass
+        gen = gg.GRCGenome.download('test_digest', store=True)
+        self.assertTrue(os.path.isfile('test_digest.assembly'))
 
    def test_BadDigest_NoRetry(self):
         """genome.py: Test local genome 'download', bad digest no retry"""
-        pass
+        with self.assertRaises(EnvironmentError):
+            gen = gg.GRCGenome.download('test_baddigest', store=True)
+        self.assertFalse(os.path.isfile('test_baddigest.assembly'))
 
    def test_GoodDigest_FourRetry(self):
         """genome.py: Test local genome 'download', good digest 4 retry"""
-        pass
+        # Note that we wouldn't expect the retries to make a difference since
+        # a local file download shouldn't ever fail digest verification, but
+        # the test is still valid even if we don't EXPECT it to fail.
+        gen = gg.GRCGenome.download('test_digest', store=True, retries=4)
+        self.assertTrue(os.path.isfile('test_digest.assembly'))
 
    def test_BadDigest_FourRetry(self):
         """genome.py: Test local genome 'download', bad digest 4 retry"""
-        pass
+        with self.assertRaises(EnvironmentError):
+            gen = gg.GRCGenome.download('test_baddigest', store=True, retries=4)
+        self.assertFalse(os.path.isfile('test_baddigest.assembly'))
         
         
