@@ -81,5 +81,3 @@ class GRCGenomeTester(unittest.TestCase):
         with self.assertRaises(EnvironmentError):
             gen = gg.GRCGenome.download('test_baddigest', store=True, retries=4)
         self.assertFalse(os.path.isfile('test_baddigest.assembly'))
-        
-        

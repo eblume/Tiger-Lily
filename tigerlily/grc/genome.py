@@ -115,7 +115,7 @@ class GRCGenome:
             
 
     @classmethod
-    def download(cls,name=DEFAULT_ASSEMBLY,store=False,silent=True, retries=5):
+    def download(cls,name=DEFAULT_ASSEMBLY,store=False,silent=True, retries=0):
         """Download a reference genome of the given name, and return a GRCGenome
 
         Fetches the named reference assembly (default is DEFAULT_ASSEMBLY) from
@@ -185,10 +185,12 @@ class GRCGenome:
             if md5 == url[1]:
                 return GRCGenome.load_archive(Archive(filepath=filename))
             else:
+                os.remove(filename)
                 if retries > 0:
                     return GRCGenome.download(name,store,silent,retries-1)
                 else:
                     raise EnvironmentError('MD5sum failed 5 tries, download aborted')
+                    return None
         else:
             return GRCGenome.load_archive(Archive(filepath=filename))
         
