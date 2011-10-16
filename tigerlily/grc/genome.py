@@ -193,7 +193,6 @@ class GRCGenome:
                     return GRCGenome.download(name,store,silent,retries-1)
                 else:
                     raise EnvironmentError('MD5sum failed 5 tries, download aborted')
-                    return None
         else:
             return GRCGenome.load_archive(Archive(filepath=filename))
         
