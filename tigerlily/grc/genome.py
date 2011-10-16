@@ -61,8 +61,6 @@ SUPPORTED_ASSEMBLIES = {
                        'ffffffffffffffffffffffffffffffff')
 }
 
-DEFAULT_ASSEMBLY = 'h19'
-
 class GRCGenome:
     """Fetch, store, load, parse, and extract sequences from a GCR ref assembly
 
@@ -115,10 +113,10 @@ class GRCGenome:
             
 
     @classmethod
-    def download(cls,name=DEFAULT_ASSEMBLY,store=False,silent=True, retries=0):
+    def download(cls,name='hg19',store=False,silent=True, retries=0):
         """Download a reference genome of the given name, and return a GRCGenome
 
-        Fetches the named reference assembly (default is DEFAULT_ASSEMBLY) from
+        Fetches the named reference assembly (default is hg19) from
         the web, and creates a new GRCGenome object to handle it.
 
         If store is False (default), the data will be kept in a temporary file,
@@ -158,6 +156,11 @@ class GRCGenome:
         Traceback (most recent call last):
             ...
         ValueError: Unknown or unsupported reference genome specified
+
+        When downloading the assembly files the download will check with stored
+        md5 values and compare to see if the download was completed correctly.
+        if the assembly is not correctly downloaded after specified amount of
+        retries then an exeption will be thrown and abort the download.
         """
 
         if name not in SUPPORTED_ASSEMBLIES:
