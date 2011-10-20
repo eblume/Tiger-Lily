@@ -76,7 +76,6 @@ class GRCGenome:
 
     Support for different assemblies will be added manually to this class. For
     a list of supported assemblies by their name, see SUPPORTED_ASSEMBLIES .
-    The default (most current) assembly will be stored in DEFAULT_ASSEMBLY
 
     For the convenience of faster non-networked tests, extremely small made-up
     reference genomes are provided inside of this package in a folder called
@@ -113,11 +112,11 @@ class GRCGenome:
             
 
     @classmethod
-    def download(cls,name='hg19',store=False,silent=True, retries=0):
+    def download(cls,name, store=False,silent=True, retries=0):
         """Download a reference genome of the given name, and return a GRCGenome
 
-        Fetches the named reference assembly (default is hg19) from
-        the web, and creates a new GRCGenome object to handle it.
+        Fetches the named reference assembly from the web, and creates a new
+        GRCGenome object to handle it.
 
         If store is False (default), the data will be kept in a temporary file,
         and will be destroyed as soon as the object is released. If True,
@@ -222,6 +221,3 @@ class GRCGenome:
         newgrc = GRCGenome()
         newgrc._archive = archive
         return newgrc
-            
-        
-        
