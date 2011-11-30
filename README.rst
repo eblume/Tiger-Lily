@@ -58,7 +58,9 @@ for pointers.
 RELEASE HISTORY
 ===============
 
-0.1.1 - 30 Sept 2011
+0.1.1 - 30 Sep 2011
+
+0.2.1 - 30 Nov 2011
 
 CONTRIBUTION
 ============

@@ -37,4 +37,4 @@
 
 """tigerlily - a Python 3 package for bioinformatics"""
 
-VERSION_INFO = ('0.2','0.2')
+VERSION_INFO = ('0.2','0.2.1')

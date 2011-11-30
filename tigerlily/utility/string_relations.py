@@ -82,7 +82,7 @@ def levenshtein_distance(s1,s2):
     1
     >>> levenshtein_distance('sittin','sitting')
     1
-    >>> levenshtein_distance('Alabama','Hell') # Surprisingly, not 0!
+    >>> levenshtein_distance('Alabama','Hell')
     7
 
     Thanks to hetland.org for this code:
